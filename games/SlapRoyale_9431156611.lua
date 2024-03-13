@@ -43,7 +43,7 @@ local function lerpVector3WithSpeed(a:Vector3, goal:Vector3, speed:number, moveT
 end
 
 -- lib
-local OrionLib = loadstring(game:HttpGetAsync(('https://raw.githubusercontent.com/shlexware/Orion/main/source')))()
+local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
 local Window = OrionLib:MakeWindow({Name = "Voxul", HidePremium = false, SaveConfig = false, ConfigFolder = "Voxul_ORIONLIB", IntroEnabled = true, IntroText = "Voxul", IntroIcon = "http://www.roblox.com/asset/?id=6035039429"})
 
 -- Home
