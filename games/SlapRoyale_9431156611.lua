@@ -172,10 +172,10 @@ local Tab_Combat = Window:MakeTab({
 		SlapAura:AddSlider({
 			Name = "Slap Cooldown",
 			Min = 0,
-			Max = 1,
+			Max = 3,
 			Default = 0,
 			Color = Color3.fromRGB(255,255,255),
-			Increment = 0.05,
+			Increment = 0.1,
 			ValueName = "seconds",
 			Save = true,
 			Flag = "SlapAuraCooldown"
