@@ -1,6 +1,8 @@
 -- Slap Royale (PID 9431156611)
+local getgenv = getgenv or getfenv
 if not game:IsLoaded() then game.Loaded:Wait() end
 
+-- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StatsService = game:GetService("Stats")
 local Players = game:GetService("Players")
@@ -9,6 +11,7 @@ local RunService = game:GetService("RunService")
 local Events = ReplicatedStorage.Events
 local MatchInfo = ReplicatedStorage.MatchInfo
 
+-- other thingies
 local LocalPlr = Players.LocalPlayer
 local Character = LocalPlr.Character or LocalPlr.CharacterAdded:Wait()
 local HumanoidRootPart:BasePart = Character:WaitForChild("HumanoidRootPart")
@@ -42,9 +45,8 @@ local function lerpVector3WithSpeed(a:Vector3, goal:Vector3, speed:number, moveT
 	return a:Lerp(goal, math.min(speed/(a-goal).Magnitude * (os.clock()-moveTick), maxAlpha or 1))
 end
 
--- lib
-local OrionLib = loadstring(game:HttpGet('https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
-local Window = OrionLib:MakeWindow({Name = "Voxul", HidePremium = false, SaveConfig = false, ConfigFolder = "Voxul_ORIONLIB", IntroEnabled = true, IntroText = "Voxul", IntroIcon = "http://www.roblox.com/asset/?id=6035039429"})
+local OrionLib = loadstring(game:HttpGet(getgenv().VoxulLib or 'https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
+local Window = OrionLib:MakeWindow(getgenv().VoxulWindowCONF or {Name = "Voxul", HidePremium = false, SaveConfig = false, ConfigFolder = "Voxul_ORIONLIB", IntroEnabled = true, IntroText = "Voxul", IntroIcon = "http://www.roblox.com/asset/?id=6035039429"})
 
 -- Home
 local Tab_Home = Window:MakeTab({
