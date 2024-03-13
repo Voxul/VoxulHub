@@ -7,7 +7,7 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 local Events = ReplicatedStorage.Events
---local MatchInfo = ReplicatedStorage.MatchInfo
+local MatchInfo = ReplicatedStorage.MatchInfo
 
 local LocalPlr = Players.LocalPlayer
 local Character = LocalPlr.Character or LocalPlr.CharacterAdded:Wait()
