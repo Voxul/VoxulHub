@@ -169,6 +169,17 @@ local Tab_Combat = Window:MakeTab({
 			Save = true,
 			Flag = "SlapAuraRange"
 		})
+		SlapAura:AddSlider({
+			Name = "Slap Cooldown",
+			Min = 0,
+			Max = 1,
+			Default = 0,
+			Color = Color3.fromRGB(255,255,255),
+			Increment = 0.05,
+			ValueName = "seconds",
+			Save = true,
+			Flag = "SlapAuraCooldown"
+		})
 		SlapAura:AddToggle({
 			Name = "Show Range Radius",
 			Default = false,
