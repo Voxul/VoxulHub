@@ -221,7 +221,7 @@ local Tab_Combat = Window:MakeTab({
 		SlapAura:AddSlider({
 			Name = "Aura Radius",
 			Min = 0,
-			Max = 20,
+			Max = 10,
 			Default = 10,
 			Color = Color3.fromRGB(255,255,255),
 			Increment = 0.5,
