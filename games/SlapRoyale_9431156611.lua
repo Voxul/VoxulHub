@@ -263,11 +263,11 @@ local Tab_Combat = Window:MakeTab({
 			Name = "Show Range Radius",
 			Default = false,
 			Callback = function()
-				rangeVisualizer.Transparency = 0.95
-				while OrionLib.Flags["SlapAura"].Value and OrionLib.Flags["SlapAuraVisual"] and OrionLib.Flags["SlapAuraVisual"].Value and task.wait() do
+				while OrionLib.Flags["SlapAuraVisual"] and OrionLib.Flags["SlapAuraVisual"].Value and task.wait() do
 					local diameter = OrionLib.Flags["SlapAuraRange"].Value*2
 					rangeVisualizer.Size = Vector3.new(diameter,diameter,diameter)
 					rangeVisualizer.CFrame = HumanoidRootPart.CFrame
+					rangeVisualizer.Transparency = 0.9
 				end
 				rangeVisualizer.Transparency = 1
 			end,
