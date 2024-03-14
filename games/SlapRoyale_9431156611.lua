@@ -84,181 +84,193 @@ local Tab_Home = Window:MakeTab({
 	Icon = "http://www.roblox.com/asset/?id=6035145364",
 	PremiumOnly = false
 })
-	Tab_Home:AddLabel("Developed by Voxul")
-	Tab_Home:AddLabel("i gave up writing my own gui lib")
-	Tab_Home:AddButton({
-		Name = "Destroy GUI",
-		Callback = function()
-			OrionLib:Destroy()
-		end    
-	})
+Tab_Home:AddLabel("Developed by Voxul")
+Tab_Home:AddLabel("i gave up writing my own gui lib")
+Tab_Home:AddButton({
+	Name = "Destroy GUI",
+	Callback = function()
+		OrionLib:Destroy()
+	end    
+})
 
 -- Items
 local Tab_Items = Window:MakeTab({
 	Name = "Items",
 	Icon = "http://www.roblox.com/asset/?id=6034767621"
 })
-	Tab_Items:AddLabel("All features below will activate when the match starts")
-	Tab_Items:AddDropdown({
-		Name = "Item Vacuum",
-		Default = "Disabled",
-		Options = {"Disabled", "Tween", "Teleport", "Pick Up"},
-		Callback = function(Value)
-			print("Item Vacuum "..Value)
-		end,
-		Save = true,
-		Flag = "ItemVacuumMode"
-	})
+Tab_Items:AddLabel("All features below will activate when the match starts")
+Tab_Items:AddDropdown({
+	Name = "Item Vacuum",
+	Default = "Disabled",
+	Options = {"Disabled", "Tween", "Teleport", "Pick Up"},
+	Callback = function(Value)
+		print("Item Vacuum "..Value)
+	end,
+	Save = true,
+	Flag = "ItemVacuumMode"
+})
 
-	local AutoItemSection = Tab_Items:AddSection({
-		Name = "Auto Item Usage"
-	})
-		AutoItemSection:AddToggle({
-			Name = "Bomb Bus",
-			Default = false,
-			Save = true,
-			Flag = "AutoBombBus"
-		})
-		AutoItemSection:AddToggle({
-			Name = "Permanent True Power",
-			Default = false,
-			Save = true,
-			Flag = "AutoTruePower"
-		})
-		AutoItemSection:AddToggle({
-			Name = "Permanent items",
-			Default = false,
-			Save = true,
-			Flag = "AutoPermItem"
-		})
-		AutoItemSection:AddToggle({
-			Name = "Cube of Ice",
-			Default = false,
-			Save = true,
-			Flag = "AutoIceCube"
-		})
+local AutoItemSection = Tab_Items:AddSection({
+	Name = "Auto Item Usage"
+})
+AutoItemSection:AddToggle({
+	Name = "Bomb Bus",
+	Default = false,
+	Save = true,
+	Flag = "AutoBombBus"
+})
+AutoItemSection:AddToggle({
+	Name = "Permanent True Power",
+	Default = false,
+	Save = true,
+	Flag = "AutoTruePower"
+})
+AutoItemSection:AddToggle({
+	Name = "Permanent items",
+	Default = false,
+	Save = true,
+	Flag = "AutoPermItem"
+})
+AutoItemSection:AddToggle({
+	Name = "Cube of Ice",
+	Default = false,
+	Save = true,
+	Flag = "AutoIceCube"
+})
 
 -- Combat
 local Tab_Combat = Window:MakeTab({
 	Name = "Combat",
 	Icon = "http://www.roblox.com/asset/?id=6034837802"
 })
-	local AutoHeal = Tab_Combat:AddSection({
-		Name = "Auto-Heal"
-	})
-		AutoHeal:AddToggle({
-			Name = "Enabled",
-			Default = false,
-			Save = true,
-			Flag = "AutoHeal"
-		})
-		AutoHeal:AddSlider({
-			Name = "Activation Health",
-			Min = 0,
-			Max = 600,
-			Default = 30,
-			Color = Color3.fromRGB(255,255,255),
-			Increment = 1,
-			ValueName = "HP",
-			Save = true,
-			Flag = "HealLowHP"
-		})
-		AutoHeal:AddSlider({
-			Name = "Safe Health",
-			Min = 0,
-			Max = 600,
-			Default = 80,
-			Color = Color3.fromRGB(255,255,255),
-			Increment = 1,
-			ValueName = "HP",
-			Save = true,
-			Flag = "HealSafeHP"
-		})
+local AutoHeal = Tab_Combat:AddSection({
+	Name = "Auto-Heal"
+})
+AutoHeal:AddToggle({
+	Name = "Enabled",
+	Default = false,
+	Save = true,
+	Flag = "AutoHeal"
+})
+AutoHeal:AddSlider({
+	Name = "Activation Health",
+	Min = 0,
+	Max = 600,
+	Default = 30,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "HP",
+	Save = true,
+	Flag = "HealLowHP"
+})
+AutoHeal:AddSlider({
+	Name = "Safe Health",
+	Min = 0,
+	Max = 600,
+	Default = 80,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "HP",
+	Save = true,
+	Flag = "HealSafeHP"
+})
+Humanoid.HealthChanged:Connect(function(health)
+	if not OrionLib.Flags["AutoHeal"].Value then return end
+	if health > OrionLib.Flags["HealLowHP"] then return end
+end)
 
-	local SlapAura = Tab_Combat:AddSection({
-		Name = "Slap Aura"
-	})
-		local friends = {}
-		SlapAura:AddToggle({
-			Name = "Enabled",
-			Default = false,
-			Callback = function(v)
-				if not v then return end
-				while OrionLib.Flags["SlapAura"].Value and task.wait() do
-					if not Character:FindFirstChild(gloveName.Value) then continue end
-					for _,v in Players:GetPlayers() do
-						if friends[v.UserId] and OrionLib.Flags["SlapAuraFriendly"] then 
-							continue 
-						elseif friends[v.UserId] == nil then
-							friends[v.UserId] = LocalPlr:IsFriendsWith(v.UserId) 
-						end
-						if not canHitPlayer(v) then	continue end
-						local distance = (v.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
-						if distance > OrionLib.Flags["SlapAuraRange"].Value then continue end
-						
-						Events.Slap:FireServer(getModelClosestChild(v.Character, HumanoidRootPart.Position))
-						Events.Slap:FireServer(v.Character.HumanoidRootPart)
-						
-						if distance < 4 and canHitPlayer(v, true) and OrionLib.Flags["SlapAuraCooldown"].Value > 0 then
-							task.wait(OrionLib.Flags["SlapAuraCooldown"].Value)
-						end
-					end
+local SlapAura = Tab_Combat:AddSection({
+	Name = "Slap Aura"
+})
+local friends = {}
+SlapAura:AddToggle({
+	Name = "Enabled",
+	Default = false,
+	Callback = function(v)
+		if not v then return end
+		while OrionLib.Flags["SlapAura"].Value and task.wait() do
+			if not Character:FindFirstChild(gloveName.Value) then continue end
+			for _,v in Players:GetPlayers() do
+				if friends[v.UserId] and OrionLib.Flags["SlapAuraFriendly"] then 
+					continue 
+				elseif friends[v.UserId] == nil then
+					friends[v.UserId] = LocalPlr:IsFriendsWith(v.UserId) 
 				end
-			end,
-			Save = true,
-			Flag = "SlapAura"
-		})
-		SlapAura:AddBind({
-			Name = "Quick Toggle Bind",
-			Default = Enum.KeyCode.Q,
-			Hold = false,
-			Callback = function()
-				OrionLib.Flags["SlapAura"]:Set(not OrionLib.Flags["SlapAura"].Value)
-			end,
-			Save = true,
-			Flag = "SlapAuraBind"
-		})
-		SlapAura:AddSlider({
-			Name = "Aura Radius",
-			Min = 0,
-			Max = 10,
-			Default = 10,
-			Color = Color3.fromRGB(255,255,255),
-			Increment = 0.5,
-			ValueName = "Studs",
-			Save = true,
-			Flag = "SlapAuraRange"
-		})
-		SlapAura:AddSlider({
-			Name = "Slap Cooldown",
-			Min = 0,
-			Max = 2,
-			Default = 0,
-			Color = Color3.fromRGB(255,255,255),
-			Increment = 0.05,
-			ValueName = "seconds",
-			Save = true,
-			Flag = "SlapAuraCooldown"
-		})
-		SlapAura:AddToggle({
-			Name = "Ignore Friends",
-			Default = false,
-			Save = true,
-			Flag = "SlapAuraFriendly"
-		})
-		SlapAura:AddToggle({
-			Name = "Slap Animation",
-			Default = false,
-			Save = true,
-			Flag = "SlapAuraAnim"
-		})
+				if not canHitPlayer(v) then	continue end
+				local distance = (v.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
+				if distance > OrionLib.Flags["SlapAuraRange"].Value then continue end
+				
+				Events.Slap:FireServer(getModelClosestChild(v.Character, HumanoidRootPart.Position))
+				Events.Slap:FireServer(v.Character.HumanoidRootPart)
+				
+				if distance < 4 and canHitPlayer(v, true) and OrionLib.Flags["SlapAuraCooldown"].Value > 0 then
+					task.wait(OrionLib.Flags["SlapAuraCooldown"].Value)
+				end
+			end
+		end
+	end,
+	Save = true,
+	Flag = "SlapAura"
+})
+SlapAura:AddBind({
+	Name = "Quick Toggle Bind",
+	Default = Enum.KeyCode.Q,
+	Hold = false,
+	Callback = function()
+		OrionLib.Flags["SlapAura"]:Set(not OrionLib.Flags["SlapAura"].Value)
+	end,
+	Save = true,
+	Flag = "SlapAuraBind"
+})
+SlapAura:AddSlider({
+	Name = "Aura Radius",
+	Min = 0,
+	Max = 10,
+	Default = 10,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 0.5,
+	ValueName = "Studs",
+	Save = true,
+	Flag = "SlapAuraRange"
+})
+SlapAura:AddSlider({
+	Name = "Slap Cooldown",
+	Min = 0,
+	Max = 2,
+	Default = 0,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 0.05,
+	ValueName = "seconds",
+	Save = true,
+	Flag = "SlapAuraCooldown"
+})
+SlapAura:AddToggle({
+	Name = "Ignore Friends",
+	Default = false,
+	Save = true,
+	Flag = "SlapAuraFriendly"
+})
+SlapAura:AddToggle({
+	Name = "Slap Animation",
+	Default = false,
+	Save = true,
+	Flag = "SlapAuraAnim"
+})
 
 -- Misc
 local Tab_Misc = Window:MakeTab({
 	Name = "Misc",
 	Icon = "http://www.roblox.com/asset/?id=4370318685"
 })
-
+Tab_Misc:AddToggle({
+	Name = "Auto Votekick",
+	Default = false,
+	Save = true,
+	Flag = "AutoVotekick"
+})
 
 -- Init
 OrionLib:Init()
+
+MatchInfo.MatchStarted.Changed:Wait()
+print("match start")
