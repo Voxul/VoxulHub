@@ -248,7 +248,7 @@ local Tab_Combat = Window:MakeTab({
 		})
 		
 		
-		local rangeVisualizer = Instance.new("MeshPart")
+		local rangeVisualizer = Instance.new("MeshPart", Character)
 		rangeVisualizer.CanCollide = false
 		rangeVisualizer.CanTouch = false
 		rangeVisualizer.CanQuery = false
@@ -264,7 +264,7 @@ local Tab_Combat = Window:MakeTab({
 			Default = false,
 			Callback = function()
 				rangeVisualizer.Transparency = 0.95
-				while OrionLib.Flags["SlapAuraVisual"] and OrionLib.Flags["SlapAuraVisual"].Value and RunService.RenderStepped:Wait() do
+				while OrionLib.Flags["SlapAura"].Value and OrionLib.Flags["SlapAuraVisual"] and OrionLib.Flags["SlapAuraVisual"].Value and RunService.RenderStepped:Wait() do
 					local diameter = OrionLib.Flags["SlapAuraRange"].Value*2
 					rangeVisualizer.Size = Vector3.new(diameter,diameter,diameter)
 					rangeVisualizer.Position = HumanoidRootPart.Position
