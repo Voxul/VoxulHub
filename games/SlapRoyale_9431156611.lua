@@ -221,8 +221,8 @@ local Tab_Combat = Window:MakeTab({
 		SlapAura:AddSlider({
 			Name = "Aura Radius",
 			Min = 0,
-			Max = 30,
-			Default = 25,
+			Max = 20,
+			Default = 10,
 			Color = Color3.fromRGB(255,255,255),
 			Increment = 0.5,
 			ValueName = "Studs",
@@ -265,9 +265,9 @@ local Tab_Combat = Window:MakeTab({
 			Callback = function()
 				while OrionLib.Flags["SlapAuraVisual"] and OrionLib.Flags["SlapAuraVisual"].Value and task.wait() do
 					local diameter = OrionLib.Flags["SlapAuraRange"].Value*2
-					rangeVisualizer.Size = Vector3.new(diameter,diameter,diameter)
-					rangeVisualizer.CFrame = HumanoidRootPart.CFrame
-					rangeVisualizer.Transparency = 0.9
+			rangeVisualizer.Size = Vector3.new(diameter/rangeVisualizer.MeshSize.X,diameter/rangeVisualizer.MeshSize.Y,diameter/rangeVisualizer.MeshSize.Z)
+					rangeVisualizer.Position = HumanoidRootPart.Position
+					rangeVisualizer.Transparency = 0.8
 				end
 				rangeVisualizer.Transparency = 1
 			end,
