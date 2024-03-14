@@ -246,9 +246,31 @@ local Tab_Combat = Window:MakeTab({
 			Save = true,
 			Flag = "SlapAuraFriendly"
 		})
+		
+		
+		local rangeVisualizer = Instance.new("MeshPart")
+		rangeVisualizer.CanCollide = false
+		rangeVisualizer.CanTouch = false
+		rangeVisualizer.CanQuery = false
+		rangeVisualizer.Anchored = true
+		rangeVisualizer.DoubleSided = true
+		rangeVisualizer.MeshId = "rbxassetid://5697933202"
+		rangeVisualizer.CastShadow = false
+		rangeVisualizer.Material = Enum.Material.SmoothPlastic
+		rangeVisualizer.Color = Color3.new(1,0.5,0)
+		rangeVisualizer.Transparency = 1
 		SlapAura:AddToggle({
 			Name = "Show Range Radius",
 			Default = false,
+			Callback = function()
+				rangeVisualizer.Transparency = 0.95
+				while OrionLib.Flags["SlapAuraVisual"] and OrionLib.Flags["SlapAuraVisual"].Value and RunService.RenderStepped:Wait() do
+					local radius = OrionLib.Flags["SlapAuraRange"].Value*2
+					rangeVisualizer.Size = Vector3.new(radius,radius,radius)
+					rangeVisualizer.Position = HumanoidRootPart.Position
+				end
+				rangeVisualizer.Transparency = 1
+			end,
 			Save = true,
 			Flag = "SlapAuraVisual"
 		})
