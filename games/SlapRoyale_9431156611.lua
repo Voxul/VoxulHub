@@ -272,5 +272,5 @@ Tab_Misc:AddToggle({
 -- Init
 OrionLib:Init()
 
-MatchInfo.MatchStarted.Changed:Wait()
+MatchInfo.Started.Changed:Wait()
 print("match start")
