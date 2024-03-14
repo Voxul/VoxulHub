@@ -18,6 +18,8 @@ local HumanoidRootPart:BasePart = Character:WaitForChild("HumanoidRootPart")
 local Humanoid:Humanoid = Character:WaitForChild("Humanoid")
 Character.PrimaryPart = HumanoidRootPart
 
+local gloveName = LocalPlr.Glove
+
 -- functions
 local dataPingItem = StatsService.Network:WaitForChild("ServerStatsItem"):WaitForChild("Data Ping")
 local function getDataPing():number
@@ -41,8 +43,36 @@ local function pivotModelTo(model:Model, cFrame:CFrame, removeVelocity:boolean?)
 	end
 end
 
+local function getModelClosestChild(model:Model, position:Vector3)
+	local closestPart, closestMagnitude = nil, nil
+
+	for _,v in model:GetChildren() do
+		if v:IsA("BasePart") then
+			local magnitude = (v.Position-position).Magnitude
+			if not closestPart or magnitude < closestMagnitude then
+				closestPart = v
+				closestMagnitude = magnitude
+			end
+		end
+	end
+
+	return closestPart
+end
+
 local function lerpVector3WithSpeed(a:Vector3, goal:Vector3, speed:number, moveTick:number, maxAlpha:number?)
 	return a:Lerp(goal, math.min(speed/(a-goal).Magnitude * (os.clock()-moveTick), maxAlpha or 1))
+end
+
+local function canHitPlayer(player:Player, checkVulnerability:boolean?)
+	local char = player.Character
+	if not char or not char:FindFirstChild("Humanoid") or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Head") then return false end
+	if not char.inMatch.Value or char:FindFirstChild("Dead") or char.Humanoid.Health <= 0 then return false end
+	
+	if checkVulnerability then
+		if char.Ragdolled.Value or not char.Vulnerable.Value or char.Head.Transparency == 1 and not char:FindFirstChildWhichIsA("Tool") and not player.Backpack:FindFirstChildWhichIsA("Tool") then return false end
+	end
+	
+	return true
 end
 
 local OrionLib = loadstring(game:HttpGet(getgenv().VoxulLib or 'https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
@@ -56,6 +86,12 @@ local Tab_Home = Window:MakeTab({
 })
 	Tab_Home:AddLabel("Developed by Voxul")
 	Tab_Home:AddLabel("i gave up writing my own gui lib")
+	Tab_Home:AddButton({
+		Name = "Destroy GUI",
+		Callback = function()
+			OrionLib:Destroy()
+		end    
+	})
 
 -- Items
 local Tab_Items = Window:MakeTab({
@@ -142,9 +178,32 @@ local Tab_Combat = Window:MakeTab({
 	local SlapAura = Tab_Combat:AddSection({
 		Name = "Slap Aura"
 	})
+		local friends = {}
 		SlapAura:AddToggle({
 			Name = "Enabled",
 			Default = false,
+			Callback = function()
+				while OrionLib.Flags["SlapAura"].Value and task.wait() do
+					if not Character:FindFirstChild(gloveName.Value) then continue end
+					for _,v in Players:GetPlayers() do
+						if friends[v.UserId] and OrionLib.Flags["SlapAuraFriendly"] then 
+							continue 
+						elseif friends[v.UserId] == nil then
+							friends[v.UserId] = LocalPlr:IsFriendsWith(v.UserId) 
+						end
+						if not canHitPlayer(v) then	continue end
+						local distance = (v.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
+						if distance > OrionLib.Flags["SlapAuraRange"].Value then continue end
+						
+						Events.Slap:FireServer(getModelClosestChild(v.Character, HumanoidRootPart.Position))
+						Events.Slap:FireServer(v.Character.HumanoidRootPart)
+						
+						if distance < 10 and canHitPlayer(v, true) and OrionLib.Flags["SlapAuraCooldown"].Value > 0 then
+							task.wait(OrionLib.Flags["SlapAuraCooldown"].Value)
+						end
+					end
+				end
+			end,
 			Save = true,
 			Flag = "SlapAura"
 		})
@@ -159,7 +218,7 @@ local Tab_Combat = Window:MakeTab({
 			Flag = "SlapAuraBind"
 		})
 		SlapAura:AddSlider({
-			Name = "Activation Range",
+			Name = "Aura Radius",
 			Min = 0,
 			Max = 30,
 			Default = 25,
@@ -172,10 +231,10 @@ local Tab_Combat = Window:MakeTab({
 		SlapAura:AddSlider({
 			Name = "Slap Cooldown",
 			Min = 0,
-			Max = 3,
+			Max = 2,
 			Default = 0,
 			Color = Color3.fromRGB(255,255,255),
-			Increment = 0.1,
+			Increment = 0.05,
 			ValueName = "seconds",
 			Save = true,
 			Flag = "SlapAuraCooldown"
@@ -198,6 +257,13 @@ local Tab_Combat = Window:MakeTab({
 			Save = true,
 			Flag = "SlapAuraAnim"
 		})
+
+-- Misc
+local Tab_Misc = Window:MakeTab({
+	Name = "Misc",
+	Icon = "http://www.roblox.com/asset/?id=4370318685"
+})
+
 
 -- Init
 OrionLib:Init()
