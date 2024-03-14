@@ -199,7 +199,7 @@ local Tab_Combat = Window:MakeTab({
 						Events.Slap:FireServer(getModelClosestChild(v.Character, HumanoidRootPart.Position))
 						Events.Slap:FireServer(v.Character.HumanoidRootPart)
 						
-						if distance < 10 and canHitPlayer(v, true) and OrionLib.Flags["SlapAuraCooldown"].Value > 0 then
+						if distance < 8 and canHitPlayer(v, true) and OrionLib.Flags["SlapAuraCooldown"].Value > 0 then
 							task.wait(OrionLib.Flags["SlapAuraCooldown"].Value)
 						end
 					end
