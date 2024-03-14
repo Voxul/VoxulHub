@@ -142,7 +142,7 @@ local Tab_Combat = Window:MakeTab({
 	local SlapAura = Tab_Combat:AddSection({
 		Name = "Slap Aura"
 	})
-		local SlapAuraToggle = SlapAura:AddToggle({
+		SlapAura:AddToggle({
 			Name = "Enabled",
 			Default = false,
 			Save = true,
@@ -153,7 +153,7 @@ local Tab_Combat = Window:MakeTab({
 			Default = Enum.KeyCode.Q,
 			Hold = false,
 			Callback = function()
-				SlapAuraToggle:Set(not SlapAuraToggle.Value)
+				OrionLib.Flags["SlapAura"]:Set(not OrionLib.Flags["SlapAura"].Value)
 			end,
 			Save = true,
 			Flag = "SlapAuraBind"
@@ -179,6 +179,12 @@ local Tab_Combat = Window:MakeTab({
 			ValueName = "seconds",
 			Save = true,
 			Flag = "SlapAuraCooldown"
+		})
+		SlapAura:AddToggle({
+			Name = "Ignore Friends",
+			Default = false,
+			Save = true,
+			Flag = "SlapAuraFriendly"
 		})
 		SlapAura:AddToggle({
 			Name = "Show Range Radius",
