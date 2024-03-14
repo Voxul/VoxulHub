@@ -182,7 +182,8 @@ local Tab_Combat = Window:MakeTab({
 		SlapAura:AddToggle({
 			Name = "Enabled",
 			Default = false,
-			Callback = function()
+			Callback = function(v)
+				if not v then return end
 				while OrionLib.Flags["SlapAura"].Value and task.wait() do
 					if not Character:FindFirstChild(gloveName.Value) then continue end
 					for _,v in Players:GetPlayers() do
