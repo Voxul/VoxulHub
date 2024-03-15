@@ -75,6 +75,7 @@ local function lerpVector3WithSpeed(a:Vector3, goal:Vector3, speed:number, moveT
 end
 
 local function canHitPlayer(player:Player, checkVulnerability:boolean?)
+	if player == LocalPlr then return false end
 	local char = player.Character
 	if not char or not char:FindFirstChild("Humanoid") or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Head") then return false end
 	if not char.inMatch.Value or char:FindFirstChild("Dead") or char.Humanoid.Health <= 0 then return false end
@@ -253,7 +254,6 @@ SlapAura:AddToggle({
 		while OrionLib.Flags["SlapAura"].Value and task.wait() do
 			if not Character:FindFirstChild(gloveName.Value) then continue end
 			for _,v in Players:GetPlayers() do
-				if v == LocalPlr then continue end
 				if friends[v.UserId] and OrionLib.Flags["SlapAuraFriendly"] or not canHitPlayer(v) then 
 					continue 
 				elseif friends[v.UserId] == nil then
