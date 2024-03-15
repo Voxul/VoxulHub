@@ -224,6 +224,7 @@ SlapAura:AddToggle({
 				
 				if distance < 5 and canHitPlayer(v, true) then
 					if OrionLib.Flags["SlapAuraAnim"].Value then
+						print("debug activate tool")
 						Character[gloveName.Value]:Activate()
 					end
 					if OrionLib.Flags["SlapAuraCooldown"].Value > 0 then
