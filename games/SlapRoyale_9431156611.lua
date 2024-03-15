@@ -7,6 +7,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StatsService = game:GetService("Stats")
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local Events = ReplicatedStorage.Events
 local MatchInfo = ReplicatedStorage.MatchInfo
@@ -311,6 +312,12 @@ PlrMovement:AddToggle({
 	Save = true,
 	Flag = "SpeedPersist"
 })
+local sprinting = false
+Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+	if OrionLib.Flags["SpeedPersist"].Value and not sprinting then
+		Humanoid.WalkSpeed = OrionLib.Flags["WalkSpeed"].Value
+	end
+end)
 PlrMovement:AddSlider({
 	Name = "JumpPower",
 	Min = 0,
@@ -331,25 +338,53 @@ PlrMovement:AddToggle({
 	Save = true,
 	Flag = "JumpPowerPersist"
 })
-PlrMovement:AddToggle({
-	Name = "Auto-Jump Enabled",
-	Default = false,
-	Callback = function(v)
-		LocalPlr.AutoJumpEnabled = v
-	end,
-	Save = true,
-	Flag = "AutoJumpEnabled"
-})
-Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
-	if OrionLib.Flags["SpeedPersist"].Value then
-		Humanoid.WalkSpeed = OrionLib.Flags["WalkSpeed"].Value
-	end
-end)
 Humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
 	if OrionLib.Flags["JumpPowerPersist"].Value then
 		Humanoid.JumpPower = OrionLib.Flags["JumpPower"].Value
 	end
 end)
+PlrMovement:AddToggle({
+	Name = "Auto-Jump Enabled",
+	Default = false,
+	Callback = function(v)
+		LocalPlr.AutoJumpEnabled = v
+		Humanoid.AutoJumpEnabled = v
+	end,
+	Save = true,
+	Flag = "AutoJumpEnabled"
+})
+PlrMovement:AddToggle({
+	Name = "Sprint Enabled",
+	Default = true,
+	Save = true,
+	Flag = "SprintEnabled"
+})
+PlrMovement:AddSlider({
+	Name = "Sprint Speed",
+	Min = 0,
+	Max = 800,
+	Default = 30,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "WS",
+	Save = true,
+	Flag = "SprintSpeed"
+})
+PlrMovement:AddBind({
+	Name = "Sprint KeyBind",
+	Default = Enum.KeyCode.LeftShift,
+	Hold = true,
+	Callback = function(v)
+		sprinting = v
+		if v then
+			Humanoid.WalkSpeed = OrionLib.Flags["SprintSpeed"].Value
+		else
+			Humanoid.WalkSpeed = OrionLib.Flags["WalkSpeed"].Value
+		end
+	end,
+	Save = true,
+	Flag = "SprintBind"
+})
 
 -- Misc
 local Tab_Misc = Window:MakeTab({
@@ -360,13 +395,14 @@ local Tab_Misc = Window:MakeTab({
 local AutoVotekicker = Tab_Misc:AddSection({
 	Name = "Auto Votekick"
 })
+Tab_Misc:AddLabel("Toggle in lobby")
 AutoVotekicker:AddToggle({
 	Name = "Enabled",
 	Default = false,
 	Save = true,
 	Flag = "AutoVotekick"
 })
-PlrMovement:AddSlider({
+AutoVotekicker:AddSlider({
 	Name = "Delay (+3 seconds to sync with match start completion)",
 	Min = 0,
 	Max = 13,
@@ -431,13 +467,14 @@ OrionLib:Init()
 
 if not MatchInfo.Started.Value then
 	MatchInfo.Started.Changed:Wait()
+	print("match start")
 end
-print("match start")
 
 -- AutoVotekick
 local votekickReasons = {Bypassing = 1, Exploiting = 2}
 local votekickChoices = {Agree = true, Disagree = false}
 if OrionLib.Flags["AutoVotekick"].Value then
+	
 	task.delay(OrionLib.Flags["AutoVotekickDelay"].Value, function()
 		local players = Players:GetPlayers()
 		table.remove(players, table.find(players, LocalPlr))
@@ -454,5 +491,5 @@ end
 
 if not MatchInfo.StartingCompleted.Value then
 	MatchInfo.StartingCompleted.Changed:Wait()
+	print("starting complete")
 end
-print("starting complete")
