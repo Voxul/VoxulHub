@@ -100,6 +100,7 @@ local Tab_Home = Window:MakeTab({
 	Icon = "http://www.roblox.com/asset/?id=6035145364",
 	PremiumOnly = false
 })
+
 Tab_Home:AddLabel("Developed by Voxul")
 Tab_Home:AddLabel("i gave up writing my own gui lib")
 Tab_Home:AddButton({
@@ -114,6 +115,7 @@ local Tab_Items = Window:MakeTab({
 	Name = "Items",
 	Icon = "http://www.roblox.com/asset/?id=6034767621"
 })
+
 Tab_Items:AddLabel("All features below will activate when the match starts")
 Tab_Items:AddDropdown({
 	Name = "Item Vacuum",
@@ -159,6 +161,7 @@ local Tab_Combat = Window:MakeTab({
 	Name = "Combat",
 	Icon = "http://www.roblox.com/asset/?id=6034837802"
 })
+
 local AutoHeal = Tab_Combat:AddSection({
 	Name = "Auto-Heal"
 })
@@ -194,6 +197,7 @@ Humanoid.HealthChanged:Connect(function(health)
 	if not OrionLib.Flags["AutoHeal"].Value then return end
 	if health > OrionLib.Flags["HealLowHP"] then return end
 end)
+
 local SlapAura = Tab_Combat:AddSection({
 	Name = "Slap Aura"
 })
@@ -282,6 +286,7 @@ local Tab_Player = Window:MakeTab({
 	Name = "Player",
 	Icon = "http://www.roblox.com/asset/?id=4335489011"
 })
+
 local PlrMovement = Tab_Player:AddSection({
 	Name = "Movement"
 })
@@ -296,7 +301,7 @@ PlrMovement:AddSlider({
 	Callback = function(v)
 		Humanoid.WalkSpeed = v
 	end,
-	Save = true,
+	Save = false,
 	Flag = "WalkSpeed"
 })
 PlrMovement:AddToggle({
@@ -316,7 +321,7 @@ PlrMovement:AddSlider({
 	Callback = function(v)
 		Humanoid.JumpPower = v
 	end,
-	Save = true,
+	Save = false,
 	Flag = "JumpPower"
 })
 PlrMovement:AddToggle({
@@ -341,12 +346,37 @@ local Tab_Misc = Window:MakeTab({
 	Name = "Misc",
 	Icon = "http://www.roblox.com/asset/?id=4370318685"
 })
-Tab_Misc:AddToggle({
-	Name = "Auto Votekick",
+
+local AutoVotekicker = Tab_Misc:AddSection({
+	Name = "Auto Votekick"
+})
+AutoVotekicker:AddToggle({
+	Name = "Enabled",
 	Default = false,
 	Save = true,
 	Flag = "AutoVotekick"
 })
+AutoVotekicker:AddDropdown({
+	Name = "Reason",
+	Default = "Exploiting",
+	Options = {"Bypassing", "Exploiting", "None"},
+	Callback = function(Value)
+		print("Auto votekick "..Value)
+	end,
+	Save = true,
+	Flag = "AutoVotekickReason"
+})
+AutoVotekicker:AddDropdown({
+	Name = "Vote Decision",
+	Default = "Agree",
+	Options = {"Agree", "Disagree", "None"},
+	Callback = function(Value)
+		print("Vote Decision "..Value)
+	end,
+	Save = true,
+	Flag = "AutoVotekickDecision"
+})
+
 local AntiBarriers = Tab_Misc:AddSection({
 	Name = "Anti Barrier/Hazards"
 })
@@ -380,3 +410,19 @@ OrionLib:Init()
 
 MatchInfo.Started.Changed:Wait()
 print("match start")
+
+-- AutoVotekick
+local votekickReasons = {Bypassing = 1, Exploiting = 2}
+local votekickChoices = {Agree = true, Disagree = false}
+if OrionLib.Flags["AutoVotekick"].Value then
+	local players = Players:GetPlayers()
+	table.remove(players, table.find(players, LocalPlr))
+	local selected = players[math.random(1, #players)].Name
+	print("Votekicking "..selected)
+	-- ( PlayerName:string, isVoting:boolean, reason:string? | vote:boolean )
+	Events.Votekick:FireServer(selected, false, votekickReasons[OrionLib.Flags["AutoVotekickReason"].Value])
+	if OrionLib.Flags["AutoVotekickDecision"].Value ~= "None" then
+		task.wait()
+		Events.Votekick:FireServer(selected, true, votekickChoices[OrionLib.Flags["AutoVotekickDecision"].Value])
+	end
+end
