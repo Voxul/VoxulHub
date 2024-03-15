@@ -228,12 +228,10 @@ local function heal()
 	if not OrionLib.Flags["AutoHeal"].Value then return end
 	print("Healing...")
 	healdebounce = true
-	for _,v in LocalPlr.Backpack:GetChildren() do
-		useAllToolsOfNames(healingItems, function()
-			task.wait(getDataPing()+0.05)
-			if Humanoid.Health >= OrionLib.Flags["HealSafeHP"] or Character:FindFirstChild("Dead") then return "break" end
-		end)
-	end
+	useAllToolsOfNames(healingItems, function()
+		task.wait(getDataPing()+0.05)
+		if Humanoid.Health >= OrionLib.Flags["HealSafeHP"] or Character:FindFirstChild("Dead") then return "break" end
+	end)
 	healdebounce = false
 end
 
@@ -531,6 +529,16 @@ if OrionLib.Flags["AutoVotekick"].Value then
 	end)
 end
 
+if not MatchInfo.StartingCompleted.Value then
+	MatchInfo.StartingCompleted.Changed:Wait()
+	print("starting complete")
+	
+	-- bus bomb
+	if OrionLib.Flags["AutoBombBus"].Value then
+		useAllToolsOfNames({"Bomb"})
+	end
+end
+
 -- item vac
 local itemVacModes = {
 	["Disabled"] = function() end,
@@ -547,7 +555,7 @@ local itemVacModes = {
 				end)
 			end)
 		end
-		
+
 		for _,v in workspace.Items:GetChildren() do
 			pickUpTool(v)
 		end
@@ -556,17 +564,8 @@ local itemVacModes = {
 		task.wait(getDataPing())
 	end,
 }
-task.spawn(itemVacModes[OrionLib.Flags["ItemVacMode"].Value])
+itemVacModes[OrionLib.Flags["ItemVacMode"].Value]()
 
-if not MatchInfo.StartingCompleted.Value then
-	MatchInfo.StartingCompleted.Changed:Wait()
-	print("starting complete")
-	
-	-- bus bomb
-	if OrionLib.Flags["AutoBombBus"].Value then
-		useAllToolsOfNames({"Bomb"})
-	end
-end
 if OrionLib.Flags["AutoTruePower"].Value then
 	--useAllToolsOfNames({"True Power"})
 	local firstTruePower = nil
