@@ -331,6 +331,15 @@ PlrMovement:AddToggle({
 	Save = true,
 	Flag = "JumpPowerPersist"
 })
+PlrMovement:AddToggle({
+	Name = "Auto-Jump Enabled",
+	Default = false,
+	Callback = function(v)
+		LocalPlr.AutoJumpEnabled = v
+	end,
+	Save = true,
+	Flag = "AutoJumpEnabled"
+})
 Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
 	if OrionLib.Flags["SpeedPersist"].Value then
 		Humanoid.WalkSpeed = OrionLib.Flags["WalkSpeed"].Value
@@ -356,6 +365,17 @@ AutoVotekicker:AddToggle({
 	Default = false,
 	Save = true,
 	Flag = "AutoVotekick"
+})
+PlrMovement:AddSlider({
+	Name = "Delay (+3 seconds to sync with match start completion)",
+	Min = 0,
+	Max = 13,
+	Default = 3,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 0.05,
+	ValueName = "seconds",
+	Save = true,
+	Flag = "AutoVotekickDelay"
 })
 AutoVotekicker:AddDropdown({
 	Name = "Reason",
@@ -409,21 +429,30 @@ AntiBarriers:AddToggle({
 -- Init
 OrionLib:Init()
 
-MatchInfo.Started.Changed:Wait()
+if not MatchInfo.Started.Value then
+	MatchInfo.Started.Changed:Wait()
+end
 print("match start")
 
 -- AutoVotekick
 local votekickReasons = {Bypassing = 1, Exploiting = 2}
 local votekickChoices = {Agree = true, Disagree = false}
 if OrionLib.Flags["AutoVotekick"].Value then
-	local players = Players:GetPlayers()
-	table.remove(players, table.find(players, LocalPlr))
-	local selected = players[math.random(1, #players)].Name
-	print("Votekicking "..selected)
-	-- ( PlayerName:string, isVoting:boolean, reason:string? | vote:boolean )
-	Events.Votekick:FireServer(selected, false, votekickReasons[OrionLib.Flags["AutoVotekickReason"].Value])
-	if OrionLib.Flags["AutoVotekickDecision"].Value ~= "None" then
-		task.wait()
-		Events.Votekick:FireServer(selected, true, votekickChoices[OrionLib.Flags["AutoVotekickDecision"].Value])
-	end
+	task.delay(OrionLib.Flags["AutoVotekickDelay"].Value, function()
+		local players = Players:GetPlayers()
+		table.remove(players, table.find(players, LocalPlr))
+		local selected = players[math.random(1, #players)].Name
+		print("Votekicking "..selected)
+		-- ( PlayerName:string, isVoting:boolean, reason:string? | vote:boolean )
+		Events.Votekick:FireServer(selected, false, votekickReasons[OrionLib.Flags["AutoVotekickReason"].Value])
+		if OrionLib.Flags["AutoVotekickDecision"].Value ~= "None" then
+			task.wait()
+			Events.Votekick:FireServer(selected, true, votekickChoices[OrionLib.Flags["AutoVotekickDecision"].Value])
+		end
+	end)
 end
+
+if not MatchInfo.StartingCompleted.Value then
+	MatchInfo.StartingCompleted.Changed:Wait()
+end
+print("starting complete")
