@@ -253,6 +253,7 @@ SlapAura:AddToggle({
 		while OrionLib.Flags["SlapAura"].Value and task.wait() do
 			if not Character:FindFirstChild(gloveName.Value) then continue end
 			for _,v in Players:GetPlayers() do
+				if v == LocalPlr then continue end
 				if friends[v.UserId] and OrionLib.Flags["SlapAuraFriendly"] or not canHitPlayer(v) then 
 					continue 
 				elseif friends[v.UserId] == nil then
