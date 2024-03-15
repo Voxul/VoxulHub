@@ -123,6 +123,9 @@ local bypass; bypass = hookmetamethod(game, "__namecall", function(remote, ...)
 	return bypass(remote, ...)
 end)
 
+workspace.Map.OriginOffice:WaitForChild("Antiaccess").CanTouch = false
+
+
 local OrionLib = loadstring(game:HttpGet(getgenv().VoxulLib or 'https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
 local Window = OrionLib:MakeWindow(getgenv().VoxulWindowCONF or {Name = "Voxul", HidePremium = false, SaveConfig = false, ConfigFolder = "Voxul_ORIONLIB", IntroEnabled = true, IntroText = "Voxul", IntroIcon = "http://www.roblox.com/asset/?id=6035039429"})
 
@@ -266,7 +269,7 @@ SlapAura:AddToggle({
 				Events.Slap:FireServer(getModelClosestChild(v.Character, HumanoidRootPart.Position))
 				Events.Slap:FireServer(v.Character.HumanoidRootPart)
 				
-				if distance < 6 and canHitPlayer(v, true) then
+				if distance < 8 and canHitPlayer(v, true) then
 					if OrionLib.Flags["SlapAuraAnim"].Value then
 						print("debug activate tool")
 						Character[gloveName.Value]:Activate()
@@ -294,8 +297,8 @@ SlapAura:AddBind({
 SlapAura:AddSlider({
 	Name = "Aura Radius",
 	Min = 0,
-	Max = 10,
-	Default = 10,
+	Max = 15,
+	Default = 15,
 	Color = Color3.fromRGB(255,255,255),
 	Increment = 0.5,
 	ValueName = "Studs",
