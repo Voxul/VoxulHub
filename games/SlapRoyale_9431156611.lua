@@ -210,25 +210,25 @@ SlapAura:AddToggle({
 		while OrionLib.Flags["SlapAura"].Value and task.wait() do
 			if not Character:FindFirstChild(gloveName.Value) then continue end
 			for _,v in Players:GetPlayers() do
-				if friends[v.UserId] and OrionLib.Flags["SlapAuraFriendly"] then 
+				if friends[v.UserId] and OrionLib.Flags["SlapAuraFriendly"] or not canHitPlayer(v) then 
 					continue 
 				elseif friends[v.UserId] == nil then
 					friends[v.UserId] = LocalPlr:IsFriendsWith(v.UserId) 
 				end
 				
-				if not canHitPlayer(v) then	continue end
 				local distance = (v.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
 				if distance > OrionLib.Flags["SlapAuraRange"].Value then continue end
 				
 				Events.Slap:FireServer(getModelClosestChild(v.Character, HumanoidRootPart.Position))
 				Events.Slap:FireServer(v.Character.HumanoidRootPart)
 				
-				if OrionLib.Flags["SlapAuraAnim"].Value then
-					Character[gloveName.Value]:Activate()
-				end
-				
-				if distance < 4 and canHitPlayer(v, true) and OrionLib.Flags["SlapAuraCooldown"].Value > 0 then
-					task.wait(OrionLib.Flags["SlapAuraCooldown"].Value)
+				if distance < 5 and canHitPlayer(v, true) then
+					if OrionLib.Flags["SlapAuraAnim"].Value then
+						Character[gloveName.Value]:Activate()
+					end
+					if OrionLib.Flags["SlapAuraCooldown"].Value > 0 then
+						task.wait(OrionLib.Flags["SlapAuraCooldown"].Value)
+					end
 				end
 			end
 		end
