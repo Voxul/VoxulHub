@@ -15,8 +15,15 @@ local MatchInfo = ReplicatedStorage.MatchInfo
 local LocalPlr = Players.LocalPlayer
 local Character = LocalPlr.Character or LocalPlr.CharacterAdded:Wait()
 local HumanoidRootPart:BasePart = Character:WaitForChild("HumanoidRootPart")
-local Humanoid:Humanoid = Character:WaitForChild("Humanoid")
 Character.PrimaryPart = HumanoidRootPart
+local Humanoid:Humanoid = Character:WaitForChild("Humanoid")
+
+LocalPlr.CharacterAdded:Connect(function(char)
+	Character = char
+	HumanoidRootPart = char:WaitForChild("HumanoidRootPart")
+	char.PrimaryPart = HumanoidRootPart
+	Humanoid = char:WaitForChild("Humanoid")
+end)
 
 local gloveName = LocalPlr.Glove
 
@@ -74,6 +81,15 @@ local function canHitPlayer(player:Player, checkVulnerability:boolean?)
 	
 	return true
 end
+
+-- disable exploit countermeasures (anti-anticheat)
+-- Remote Blocker
+local blockedRemotes = {[Events.WS] = "FireServer", [Events.WS2] = "FireServer"}
+
+local bypass; bypass = hookmetamethod(game, "__namecall", function(remote, ...)
+	if blockedRemotes[remote] == true or blockedRemotes[remote] == getnamecallmethod() then return end
+	return bypass(remote, ...)
+end)
 
 local OrionLib = loadstring(game:HttpGet(getgenv().VoxulLib or 'https://raw.githubusercontent.com/shlexware/Orion/main/source'))()
 local Window = OrionLib:MakeWindow(getgenv().VoxulWindowCONF or {Name = "Voxul", HidePremium = false, SaveConfig = false, ConfigFolder = "Voxul_ORIONLIB", IntroEnabled = true, IntroText = "Voxul", IntroIcon = "http://www.roblox.com/asset/?id=6035039429"})
@@ -178,7 +194,6 @@ Humanoid.HealthChanged:Connect(function(health)
 	if not OrionLib.Flags["AutoHeal"].Value then return end
 	if health > OrionLib.Flags["HealLowHP"] then return end
 end)
-
 local SlapAura = Tab_Combat:AddSection({
 	Name = "Slap Aura"
 })
@@ -196,12 +211,17 @@ SlapAura:AddToggle({
 				elseif friends[v.UserId] == nil then
 					friends[v.UserId] = LocalPlr:IsFriendsWith(v.UserId) 
 				end
+				
 				if not canHitPlayer(v) then	continue end
 				local distance = (v.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
 				if distance > OrionLib.Flags["SlapAuraRange"].Value then continue end
 				
 				Events.Slap:FireServer(getModelClosestChild(v.Character, HumanoidRootPart.Position))
 				Events.Slap:FireServer(v.Character.HumanoidRootPart)
+				
+				if OrionLib.Flags["SlapAuraAnim"].Value then
+					Character[gloveName.Value]:Activate()
+				end
 				
 				if distance < 4 and canHitPlayer(v, true) and OrionLib.Flags["SlapAuraCooldown"].Value > 0 then
 					task.wait(OrionLib.Flags["SlapAuraCooldown"].Value)
@@ -257,6 +277,65 @@ SlapAura:AddToggle({
 	Flag = "SlapAuraAnim"
 })
 
+-- Player
+local Tab_Player = Window:MakeTab({
+	Name = "Player",
+	Icon = "http://www.roblox.com/asset/?id=4335489011"
+})
+local PlrMovement = Tab_Player:AddSection({
+	Name = "Movement"
+})
+PlrMovement:AddSlider({
+	Name = "WalkSpeed",
+	Min = 0,
+	Max = 800,
+	Default = 20,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "WS",
+	Callback = function(v)
+		Humanoid.WalkSpeed = v
+	end,
+	Save = true,
+	Flag = "WalkSpeed"
+})
+PlrMovement:AddToggle({
+	Name = "Persistent WalkSpeed",
+	Default = false,
+	Save = true,
+	Flag = "SpeedPersist"
+})
+PlrMovement:AddSlider({
+	Name = "JumpPower",
+	Min = 0,
+	Max = 800,
+	Default = 50,
+	Color = Color3.fromRGB(255,255,255),
+	Increment = 1,
+	ValueName = "JP",
+	Callback = function(v)
+		Humanoid.JumpPower = v
+	end,
+	Save = true,
+	Flag = "JumpPower"
+})
+PlrMovement:AddToggle({
+	Name = "Persistent JumpPower",
+	Default = false,
+	Save = true,
+	Flag = "JumpPowerPersist"
+})
+Humanoid:GetPropertyChangedSignal("WalkSpeed"):Connect(function()
+	if OrionLib.Flags["SpeedPersist"].Value then
+		Humanoid.WalkSpeed = OrionLib.Flags["WalkSpeed"].Value
+	end
+end)
+Humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
+	if OrionLib.Flags["JumpPowerPersist"].Value then
+		Humanoid.JumpPower = OrionLib.Flags["JumpPower"].Value
+	end
+end)
+
 -- Misc
 local Tab_Misc = Window:MakeTab({
 	Name = "Misc",
@@ -267,6 +346,33 @@ Tab_Misc:AddToggle({
 	Default = false,
 	Save = true,
 	Flag = "AutoVotekick"
+})
+local AntiBarriers = Tab_Misc:AddSection({
+	Name = "Anti Barrier/Hazards"
+})
+AntiBarriers:AddToggle({
+	Name = "Safe Acid",
+	Default = false,
+	Save = true,
+	Flag = "AntiAcid"
+})
+AntiBarriers:AddToggle({
+	Name = "Acid Collision",
+	Default = false,
+	Save = true,
+	Flag = "SolidAcid"
+})
+AntiBarriers:AddToggle({
+	Name = "Safe Lava",
+	Default = false,
+	Save = true,
+	Flag = "AntiLava"
+})
+AntiBarriers:AddToggle({
+	Name = "Lava Collision",
+	Default = false,
+	Save = true,
+	Flag = "SolidLava"
 })
 
 -- Init
