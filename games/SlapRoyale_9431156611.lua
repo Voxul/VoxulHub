@@ -232,13 +232,13 @@ local function heal()
 	healdebounce = true
 	useAllToolsOfNames(healingItems, function()
 		task.wait(getDataPing()+0.05)
-		if Humanoid.Health >= OrionLib.Flags["HealSafeHP"] or Character:FindFirstChild("Dead") then return "break" end
+		if Humanoid.Health >= OrionLib.Flags["HealSafeHP"].Value or Character:FindFirstChild("Dead") then return "break" end
 	end)
 	healdebounce = false
 end
 
 Humanoid.HealthChanged:Connect(function(health)
-	if health <= OrionLib.Flags["HealLowHP"] then heal() end
+	if health <= OrionLib.Flags["HealLowHP"].Value then heal() end
 end)
 
 local SlapAura = Tab_Combat:AddSection({
