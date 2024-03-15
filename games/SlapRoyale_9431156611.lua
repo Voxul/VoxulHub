@@ -26,7 +26,7 @@ LocalPlr.CharacterAdded:Connect(function(char)
 	Humanoid = char:WaitForChild("Humanoid")
 end)
 
-local gloveName = LocalPlr.Glove
+local gloveName:StringValue = LocalPlr.Glove
 
 local permanentItems = {"Boba", "Bull's essence", "Frog Brew", "Frog Potion", "Potion of Strength", "Speed Brew", "Speed Potion", "Strength Brew"}
 local healingItems = {"Apple", "Bandage", "Boba", "First Aid Kit", "Forcefield Crystal", "Healing Brew", "Healing Potion"}
@@ -103,10 +103,12 @@ local function safeEquipTool(tool:Tool, activate:boolean?, immediateUnequip:bool
 end
 
 local function useAllToolsOfNames(names:{string}, intervalFunc:any?)
+	local itemsUsed = 0
 	for _,v in LocalPlr.Backpack:GetChildren() do
 		if v:IsA("Tool") and table.find(names, v.Name) then
 			safeEquipTool(v, true)
-			if intervalFunc and intervalFunc() == "break" then break end
+			itemsUsed += 1
+			if intervalFunc and intervalFunc(itemsUsed) == "break" then break end
 		end
 	end
 end
@@ -236,8 +238,7 @@ local function heal()
 end
 
 Humanoid.HealthChanged:Connect(function(health)
-	if health > OrionLib.Flags["HealLowHP"] then return end
-	heal()
+	if health <= OrionLib.Flags["HealLowHP"] then heal() end
 end)
 
 local SlapAura = Tab_Combat:AddSection({
@@ -475,30 +476,72 @@ AutoVotekicker:AddDropdown({
 	Flag = "AutoVotekickDecision"
 })
 
+local AutoBusJumper = Tab_Misc:AddSection({
+	Name = "Auto Bus Jump"
+})
+AutoBusJumper:AddToggle({
+	Name = "Enabled",
+	Default = false,
+	Save = true,
+	Flag = "AutoBusJump"
+})
+AutoBusJumper:AddToggle({
+	Name = "Wait for Prompt",
+	Default = false,
+	Save = true,
+	Flag = "BusJumpOnPrompt"
+})
+AutoBusJumper:AddToggle({
+	Name = "Instant Land",
+	Default = false,
+	Save = true,
+	Flag = "LandOnBusJump"
+})
+
 local AntiBarriers = Tab_Misc:AddSection({
 	Name = "Anti Barrier/Hazards"
 })
 AntiBarriers:AddToggle({
 	Name = "Safe Acid",
 	Default = false,
+	Callback = function(v)
+		for _,v1 in workspace.Map.AcidAbnormality:GetChildren() do
+			if v1.Name == "Acid" and v1:IsA("BasePart") and v1:FindFirstChildWhichIsA("TouchTransmitter") then
+				v1.CanTouch = not v
+			end
+		end
+	end,
 	Save = true,
 	Flag = "AntiAcid"
 })
 AntiBarriers:AddToggle({
 	Name = "Acid Collision",
 	Default = false,
+	Callback = function(v)
+		for _,v1 in workspace.Map.AcidAbnormality:GetChildren() do
+			if v1.Name == "Acid" and v1:IsA("BasePart") and v1:FindFirstChildWhichIsA("TouchTransmitter") then
+				v1.CanCollide = v
+			end
+		end
+	end,
 	Save = true,
 	Flag = "SolidAcid"
 })
 AntiBarriers:AddToggle({
 	Name = "Safe Lava",
 	Default = false,
+	Callback = function(v)
+		workspace.Map.DragonDepths:WaitForChild("Lava").CanTouch = not v
+	end,
 	Save = true,
 	Flag = "AntiLava"
 })
 AntiBarriers:AddToggle({
 	Name = "Lava Collision",
 	Default = false,
+	Callback = function(v)
+		workspace.Map.DragonDepths:WaitForChild("Lava").CanCollide = v
+	end,
 	Save = true,
 	Flag = "SolidLava"
 })
@@ -532,14 +575,11 @@ end
 if not MatchInfo.StartingCompleted.Value then
 	MatchInfo.StartingCompleted.Changed:Wait()
 	print("starting complete")
-	
-	-- bus bomb
-	if OrionLib.Flags["AutoBombBus"].Value then
-		useAllToolsOfNames({"Bomb"})
-	end
 end
 
--- item vac
+if workspace:FindFirstChild("Lobby") then workspace.Lobby.AncestryChanged:Wait() end
+
+-- items
 local itemVacModes = {
 	["Disabled"] = function() end,
 	["Tween"] = function() warn("Function not available yet!") end,
@@ -565,9 +605,13 @@ local itemVacModes = {
 	end,
 }
 itemVacModes[OrionLib.Flags["ItemVacMode"].Value]()
-
+if OrionLib.Flags["AutoBombBus"].Value then
+	useAllToolsOfNames({"Bomb"}, function(i)
+		if i%4 == 3 then heal() end
+	end)
+	task.wait(getDataPing())
+end
 if OrionLib.Flags["AutoTruePower"].Value then
-	--useAllToolsOfNames({"True Power"})
 	local firstTruePower = nil
 	for _,v in LocalPlr.Backpack:GetChildren() do
 		if v:IsA("Tool") and v.Name == "True Power" then
@@ -582,4 +626,18 @@ if OrionLib.Flags["AutoTruePower"].Value then
 			firstTruePower = v
 		end
 	end
+	task.wait(getDataPing())
+end
+if OrionLib.Flags["AutoIceCube"].Value then
+	useAllToolsOfNames({"Cube of Ice"})
+	task.wait(getDataPing())
+end
+if OrionLib.Flags["AutoPermItem"].Value then
+	task.spawn(function()
+		while gloveName.Value == "Pack-A-Punch" and not Character:FindFirstChild("Pack-A-Punch") and not LocalPlr.Backpack:FindFirstChild("Pack-A-Punch") do 
+			task.wait() 
+		end
+		task.wait(0.1)
+		useAllToolsOfNames(permanentItems)
+	end)
 end
