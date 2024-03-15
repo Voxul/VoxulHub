@@ -266,7 +266,7 @@ SlapAura:AddToggle({
 				Events.Slap:FireServer(getModelClosestChild(v.Character, HumanoidRootPart.Position))
 				Events.Slap:FireServer(v.Character.HumanoidRootPart)
 				
-				if distance < 5 and canHitPlayer(v, true) then
+				if distance < 6 and canHitPlayer(v, true) then
 					if OrionLib.Flags["SlapAuraAnim"].Value then
 						print("debug activate tool")
 						Character[gloveName.Value]:Activate()
