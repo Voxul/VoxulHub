@@ -436,7 +436,7 @@ local Tab_Misc = Window:MakeTab({
 local AutoVotekicker = Tab_Misc:AddSection({
 	Name = "Auto Votekick"
 })
-Tab_Misc:AddLabel("Toggle in lobby")
+AutoVotekicker:AddLabel("Toggle in lobby")
 AutoVotekicker:AddToggle({
 	Name = "Enabled",
 	Default = false,
