@@ -28,6 +28,9 @@ end)
 
 local gloveName = LocalPlr.Glove
 
+local permanentItems = {"Boba", "Bull's essence", "Frog Brew", "Frog Potion", "Potion of Strength", "Speed Brew", "Speed Potion", "Strength Brew"}
+local healingItems = {"Apple", "Bandage", "Boba", "First Aid Kit", "Forcefield Crystal", "Healing Brew", "Healing Potion"}
+
 -- functions
 local dataPingItem = StatsService.Network:WaitForChild("ServerStatsItem"):WaitForChild("Data Ping")
 local function getDataPing():number
@@ -83,6 +86,31 @@ local function canHitPlayer(player:Player, checkVulnerability:boolean?)
 	return true
 end
 
+local function safeEquipTool(tool:Tool, activate:boolean?, immediateUnequip:boolean?)
+	if tool:FindFirstChild("Handle") then
+		for _,v in tool:GetDescendants() do
+			if v:IsA("BasePart") then
+				v.Massless = true
+				v.Anchored = false
+			end
+		end
+		tool.PrimaryPart = tool.PrimaryPart or tool.Handle
+		pivotModelTo(tool, HumanoidRootPart.CFrame, true)
+	end
+	pcall(Humanoid.EquipTool, Humanoid, tool)
+	if activate then tool:Activate() end
+	if immediateUnequip then Humanoid:UnequipTools() end
+end
+
+local function useAllToolsOfNames(names:{string}, intervalFunc:any?)
+	for _,v in LocalPlr.Backpack:GetChildren() do
+		if v:IsA("Tool") and table.find(names, v.Name) then
+			safeEquipTool(v, true)
+			if intervalFunc and intervalFunc() == "break" then break end
+		end
+	end
+end
+
 -- disable exploit countermeasures (anti-anticheat)
 -- Remote Blocker
 local blockedRemotes = {[Events.WS] = "FireServer", [Events.WS2] = "FireServer"}
@@ -119,14 +147,14 @@ local Tab_Items = Window:MakeTab({
 
 Tab_Items:AddLabel("All features below will activate when the match starts")
 Tab_Items:AddDropdown({
-	Name = "Item Vacuum",
+	Name = "Item Vacuum Mode",
 	Default = "Disabled",
-	Options = {"Disabled", "Tween", "Teleport", "Pick Up"},
+	Options = {"Disabled", "Tween (WIP)", "Teleport (WIP)", "Pick Up"},
 	Callback = function(Value)
 		print("Item Vacuum "..Value)
 	end,
 	Save = true,
-	Flag = "ItemVacuumMode"
+	Flag = "ItemVacMode"
 })
 
 local AutoItemSection = Tab_Items:AddSection({
@@ -139,6 +167,12 @@ AutoItemSection:AddToggle({
 	Flag = "AutoBombBus"
 })
 AutoItemSection:AddToggle({
+	Name = "Cube of Ice",
+	Default = false,
+	Save = true,
+	Flag = "AutoIceCube"
+})
+AutoItemSection:AddToggle({
 	Name = "Permanent True Power",
 	Default = false,
 	Save = true,
@@ -149,12 +183,6 @@ AutoItemSection:AddToggle({
 	Default = false,
 	Save = true,
 	Flag = "AutoPermItem"
-})
-AutoItemSection:AddToggle({
-	Name = "Cube of Ice",
-	Default = false,
-	Save = true,
-	Flag = "AutoIceCube"
 })
 
 -- Combat
@@ -194,9 +222,24 @@ AutoHeal:AddSlider({
 	Save = true,
 	Flag = "HealSafeHP"
 })
-Humanoid.HealthChanged:Connect(function(health)
+local healdebounce = false
+local function heal()
+	if healdebounce then return end
 	if not OrionLib.Flags["AutoHeal"].Value then return end
+	print("Healing...")
+	healdebounce = true
+	for _,v in LocalPlr.Backpack:GetChildren() do
+		useAllToolsOfNames(healingItems, function()
+			task.wait(getDataPing()+0.05)
+			if Humanoid.Health >= OrionLib.Flags["HealSafeHP"] or Character:FindFirstChild("Dead") then return "break" end
+		end)
+	end
+	healdebounce = false
+end
+
+Humanoid.HealthChanged:Connect(function(health)
 	if health > OrionLib.Flags["HealLowHP"] then return end
+	heal()
 end)
 
 local SlapAura = Tab_Combat:AddSection({
@@ -474,7 +517,6 @@ end
 local votekickReasons = {Bypassing = 1, Exploiting = 2}
 local votekickChoices = {Agree = true, Disagree = false}
 if OrionLib.Flags["AutoVotekick"].Value then
-	
 	task.delay(OrionLib.Flags["AutoVotekickDelay"].Value, function()
 		local players = Players:GetPlayers()
 		table.remove(players, table.find(players, LocalPlr))
@@ -489,7 +531,56 @@ if OrionLib.Flags["AutoVotekick"].Value then
 	end)
 end
 
+-- item vac
+local itemVacModes = {
+	["Disabled"] = function() end,
+	["Tween"] = function() warn("Function not available yet!") end,
+	["Teleport"] = function() warn("Function not available yet!") end,
+	["Pick Up"] = function()
+		local function pickUpTool(v:Tool)
+			if not v:IsA("Tool") then return end
+			safeEquipTool(v, false, true)
+			v.Equipped:Once(function()
+				v.AncestryChanged:Connect(function(_,p)
+					if p ~= Character then return end
+					task.defer(v.Activate, v)
+				end)
+			end)
+		end
+		
+		for _,v in workspace.Items:GetChildren() do
+			pickUpTool(v)
+		end
+		workspace.Items.ChildAdded:Connect(pickUpTool)
+		workspace.Items.ChildRemoved:Wait()
+		task.wait(getDataPing())
+	end,
+}
+task.spawn(itemVacModes[OrionLib.Flags["ItemVacMode"].Value])
+
 if not MatchInfo.StartingCompleted.Value then
 	MatchInfo.StartingCompleted.Changed:Wait()
 	print("starting complete")
+	
+	-- bus bomb
+	if OrionLib.Flags["AutoBombBus"].Value then
+		useAllToolsOfNames({"Bomb"})
+	end
+end
+if OrionLib.Flags["AutoTruePower"].Value then
+	--useAllToolsOfNames({"True Power"})
+	local firstTruePower = nil
+	for _,v in LocalPlr.Backpack:GetChildren() do
+		if v:IsA("Tool") and v.Name == "True Power" then
+			if firstTruePower then
+				print("Perma True Power")
+				safeEquipTool(firstTruePower, true)
+				task.wait(0.3 + getDataPing())
+				safeEquipTool(v, true)
+				task.wait(5.2 + getDataPing())
+				break
+			end
+			firstTruePower = v
+		end
+	end
 end
