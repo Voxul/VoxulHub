@@ -149,11 +149,11 @@ Tab_Home:AddToggle({
 	Default = true,
 	Callback = function(v)
 		OrionLib.SaveCfg = v
-		if not v then
+		if v == false then
 			delfile(OrionLib.Folder .. "/" .. game.PlaceId .. ".txt")
 		end
 	end,
-	Save = true,
+	Save = false,
 	Flag = "SaveConfig"
 })
 Tab_Home:AddButton({
@@ -518,7 +518,6 @@ local lobbyhiding = false
 Tab_Misc:AddToggle({
 	Name = "Lobby hider",
 	Default = false,
-	Save = true,
 	Callback = function(v)
 		lobbyhiding = v
 		if not v or not workspace:FindFirstChild("Lobby") then return end
@@ -532,6 +531,7 @@ Tab_Misc:AddToggle({
 		workspace.CurrentCamera.CameraSubject = Humanoid
 		pivotModelTo(Character, cframe, true)
 	end,
+	Save = true,
 	Flag = "LobbyHider"
 })
 
