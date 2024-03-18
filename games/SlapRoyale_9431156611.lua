@@ -3,6 +3,7 @@ local getgenv = getgenv or getfenv
 if not game:IsLoaded() then game.Loaded:Wait() end
 
 -- Services
+local CoreGui:CoreGui = game:GetService("CoreGui")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local StatsService = game:GetService("Stats")
 local Players = game:GetService("Players")
@@ -114,6 +115,22 @@ local function useAllToolsOfNames(names:{string}, intervalFunc:any?)
 	end
 end
 
+local highlightContainer = CoreGui
+local function highlightModel(object:Instance, transparency:number?, descendantMaxTransparency:number?)
+	transparency = transparency or 0.3
+	
+	for _,v in object:GetDescendants() do
+		if v:IsA("BasePart") then
+			
+		end
+	end
+end
+
+local function esp(plr:Player)
+	if not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then return end
+	
+end
+
 -- disable exploit countermeasures (anti-anticheat)
 -- Remote Blocker
 local blockedRemotes = {[Events.WS] = "FireServer", [Events.WS2] = "FireServer"}
@@ -152,15 +169,21 @@ local Tab_Items = Window:MakeTab({
 })
 
 Tab_Items:AddLabel("All features below will activate when the match starts")
-Tab_Items:AddDropdown({
+local ItemVacSection = Tab_Items:AddSection({
+	Name = "Item Vacuum"
+})
+ItemVacSection:AddDropdown({
 	Name = "Item Vacuum Mode",
 	Default = "Disabled",
 	Options = {"Disabled", "Tween (WIP)", "Teleport (WIP)", "Pick Up"},
-	Callback = function(Value)
-		print("Item Vacuum "..Value)
-	end,
 	Save = true,
 	Flag = "ItemVacMode"
+})
+ItemVacSection:AddToggle({
+	Name = "Vacuum Dropped Items",
+	Default = false,
+	Save = true,
+	Flag = "DroppedItemVac"
 })
 
 local AutoItemSection = Tab_Items:AddSection({
@@ -211,7 +234,6 @@ AutoHeal:AddSlider({
 	Min = 0,
 	Max = 600,
 	Default = 30,
-	Color = Color3.fromRGB(255,255,255),
 	Increment = 1,
 	ValueName = "HP",
 	Save = true,
@@ -222,7 +244,6 @@ AutoHeal:AddSlider({
 	Min = 0,
 	Max = 600,
 	Default = 80,
-	Color = Color3.fromRGB(255,255,255),
 	Increment = 1,
 	ValueName = "HP",
 	Save = true,
@@ -233,6 +254,12 @@ local function heal()
 	if healdebounce then return end
 	if not OrionLib.Flags["AutoHeal"].Value then return end
 	print("Healing...")
+	OrionLib:MakeNotification({
+		Name = "Auto Heal",
+		Content = "Healing to safe health...",
+		Image = "http://www.roblox.com/asset/?id=6034684956",
+		Time = 3
+	})
 	healdebounce = true
 	useAllToolsOfNames(healingItems, function()
 		task.wait(getDataPing()+0.05)
@@ -260,7 +287,10 @@ SlapAura:AddToggle({
 				if friends[v.UserId] and OrionLib.Flags["SlapAuraFriendly"] or not canHitPlayer(v) then 
 					continue 
 				elseif friends[v.UserId] == nil then
-					friends[v.UserId] = LocalPlr:IsFriendsWith(v.UserId) 
+					friends[v.UserId] = false
+					task.spawn(function()
+						friends[v.UserId] = LocalPlr:IsFriendsWith(v.UserId)
+					end)
 				end
 				
 				local distance = (v.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
@@ -269,14 +299,12 @@ SlapAura:AddToggle({
 				Events.Slap:FireServer(getModelClosestChild(v.Character, HumanoidRootPart.Position))
 				Events.Slap:FireServer(v.Character.HumanoidRootPart)
 				
-				if distance < 10 and canHitPlayer(v, true) then
-					if OrionLib.Flags["SlapAuraAnim"].Value then
-						print("debug activate tool")
-						Character[gloveName.Value]:Activate()
-					end
-					if OrionLib.Flags["SlapAuraCooldown"].Value > 0 then
-						task.wait(OrionLib.Flags["SlapAuraCooldown"].Value)
-					end
+				if OrionLib.Flags["SlapAuraAnim"].Value then
+					Character[gloveName.Value]:Activate()
+				end
+				
+				if distance < 6 and canHitPlayer(v, true) and OrionLib.Flags["SlapAuraCooldown"].Value > 0 then
+					task.wait(OrionLib.Flags["SlapAuraCooldown"].Value)
 				end
 			end
 		end
@@ -299,7 +327,6 @@ SlapAura:AddSlider({
 	Min = 0,
 	Max = 15,
 	Default = 15,
-	Color = Color3.fromRGB(255,255,255),
 	Increment = 0.5,
 	ValueName = "Studs",
 	Save = true,
@@ -310,7 +337,6 @@ SlapAura:AddSlider({
 	Min = 0,
 	Max = 2,
 	Default = 0,
-	Color = Color3.fromRGB(255,255,255),
 	Increment = 0.05,
 	ValueName = "seconds",
 	Save = true,
@@ -343,7 +369,6 @@ PlrMovement:AddSlider({
 	Min = 0,
 	Max = 800,
 	Default = 20,
-	Color = Color3.fromRGB(255,255,255),
 	Increment = 1,
 	ValueName = "WS",
 	Callback = function(v)
@@ -369,7 +394,6 @@ PlrMovement:AddSlider({
 	Min = 0,
 	Max = 800,
 	Default = 50,
-	Color = Color3.fromRGB(255,255,255),
 	Increment = 1,
 	ValueName = "JP",
 	Callback = function(v)
@@ -410,7 +434,6 @@ PlrMovement:AddSlider({
 	Min = 0,
 	Max = 800,
 	Default = 30,
-	Color = Color3.fromRGB(255,255,255),
 	Increment = 1,
 	ValueName = "WS",
 	Save = true,
@@ -453,7 +476,6 @@ AutoVotekicker:AddSlider({
 	Min = 0,
 	Max = 13,
 	Default = 3,
-	Color = Color3.fromRGB(255,255,255),
 	Increment = 0.05,
 	ValueName = "seconds",
 	Save = true,
@@ -463,9 +485,6 @@ AutoVotekicker:AddDropdown({
 	Name = "Reason",
 	Default = "Exploiting",
 	Options = {"Bypassing", "Exploiting", "None"},
-	Callback = function(Value)
-		print("Auto votekick "..Value)
-	end,
 	Save = true,
 	Flag = "AutoVotekickReason"
 })
@@ -473,9 +492,6 @@ AutoVotekicker:AddDropdown({
 	Name = "Vote Decision",
 	Default = "Agree",
 	Options = {"Agree", "Disagree", "None"},
-	Callback = function(Value)
-		print("Vote Decision "..Value)
-	end,
 	Save = true,
 	Flag = "AutoVotekickDecision"
 })
@@ -555,7 +571,6 @@ OrionLib:Init()
 
 if not MatchInfo.Started.Value then
 	MatchInfo.Started.Changed:Wait()
-	print("match start")
 end
 
 -- AutoVotekick
@@ -605,7 +620,11 @@ local itemVacModes = {
 		for _,v in workspace.Items:GetChildren() do
 			pickUpTool(v)
 		end
-		workspace.Items.ChildAdded:Connect(pickUpTool)
+		workspace.Items.ChildAdded:Connect(function(c)
+			if not OrionLib.Flags["DroppedItemVac"].Value then return end
+			task.wait()
+			pickUpTool(c)
+		end)
 		workspace.Items.ChildRemoved:Wait()
 		task.wait(getDataPing())
 	end,
