@@ -519,17 +519,19 @@ Tab_Misc:AddToggle({
 	Name = "Lobby hider",
 	Default = false,
 	Callback = function(v)
-		lobbyhiding = v
-		if not v or not workspace:FindFirstChild("Lobby") then return end
-		lobbyViewerPart.Position = HumanoidRootPart.Position
-		local cframe = HumanoidRootPart.CFrame
-		while lobbyhiding and workspace:FindFirstChild("Lobby") do
-			workspace.CurrentCamera.CameraSubject = lobbyViewerPart
-			pivotModelTo(Character, cframe + Vector3.new(math.random(), 150, math.random()), true)
-			task.wait()
-		end
-		workspace.CurrentCamera.CameraSubject = Humanoid
-		pivotModelTo(Character, cframe, true)
+		task.spawn(function()
+			lobbyhiding = v
+			if not v or not workspace:FindFirstChild("Lobby") or not Character then return end
+			lobbyViewerPart.Position = HumanoidRootPart.Position
+			local cframe = HumanoidRootPart.CFrame
+			while lobbyhiding and workspace:FindFirstChild("Lobby") do
+				workspace.CurrentCamera.CameraSubject = lobbyViewerPart
+				pivotModelTo(Character, cframe + Vector3.new(math.random(), 150, math.random()), true)
+				task.wait()
+			end
+			workspace.CurrentCamera.CameraSubject = Humanoid
+			pivotModelTo(Character, cframe, true)
+		end)
 	end,
 	Save = true,
 	Flag = "LobbyHider"
