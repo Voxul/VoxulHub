@@ -150,6 +150,9 @@ Tab_Home:AddToggle({
 	Default = true,
 	Callback = function(v)
 		OrionLib.SaveCfg = v
+		if not v then
+			delfile(OrionLib.Folder .. "/" .. game.GameId .. ".txt")
+		end
 	end,
 	Save = true,
 	Flag = "SaveConfig"
