@@ -137,8 +137,7 @@ local Tab_Home = Window:MakeTab({
 	PremiumOnly = false
 })
 
-Tab_Home:AddLabel("Developed by Voxul")
-Tab_Home:AddLabel("i gave up writing my own gui lib")
+Tab_Home:AddLabel("made with ♡ by voxul~")
 Tab_Home:AddButton({
 	Name = "Destroy GUI",
 	Callback = function()
@@ -157,6 +156,18 @@ Tab_Home:AddToggle({
 	Save = true,
 	Flag = "SaveConfig"
 })
+Tab_Home:AddButton({
+	Name = "Infinite Yield",
+	Callback = function()
+		OrionLib:MakeNotification({
+			Name = "Voxul Hub",
+			Content = "Loading InfiniteYield...",
+			Image = "http://www.roblox.com/asset/?id=6034934023",
+			Time = 5
+		})
+		loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
+	end
+})
 
 -- Items
 local Tab_Items = Window:MakeTab({
@@ -171,7 +182,7 @@ local ItemVacSection = Tab_Items:AddSection({
 ItemVacSection:AddDropdown({
 	Name = "Item Vacuum Mode",
 	Default = "Disabled",
-	Options = {"Disabled", "Tween (WIP)", "Teleport (WIP)", "Pick Up"},
+	Options = {"Disabled", "Pick Up", "Tween (WIP)", "Teleport (WIP)", "Hybrid (WIP)"},
 	Save = true,
 	Flag = "ItemVacMode"
 })
@@ -270,11 +281,11 @@ Humanoid.HealthChanged:Connect(function(health)
 	if health <= OrionLib.Flags["HealLowHP"].Value then heal() end
 end)
 
-local SlapAura = Tab_Combat:AddSection({
+local SlapAuraSection = Tab_Combat:AddSection({
 	Name = "Slap Aura"
 })
 local friends = {}
-SlapAura:AddToggle({
+SlapAuraSection:AddToggle({
 	Name = "Enabled",
 	Default = false,
 	Callback = function(v)
@@ -310,7 +321,7 @@ SlapAura:AddToggle({
 	Save = true,
 	Flag = "SlapAura"
 })
-SlapAura:AddBind({
+SlapAuraSection:AddBind({
 	Name = "Quick Toggle Bind",
 	Default = Enum.KeyCode.Q,
 	Hold = false,
@@ -320,7 +331,7 @@ SlapAura:AddBind({
 	Save = true,
 	Flag = "SlapAuraBind"
 })
-SlapAura:AddSlider({
+SlapAuraSection:AddSlider({
 	Name = "Aura Radius",
 	Min = 0,
 	Max = 25,
@@ -330,7 +341,7 @@ SlapAura:AddSlider({
 	Save = true,
 	Flag = "SlapAuraRange"
 })
-SlapAura:AddSlider({
+SlapAuraSection:AddSlider({
 	Name = "Slap Cooldown",
 	Min = 0,
 	Max = 2,
@@ -340,17 +351,57 @@ SlapAura:AddSlider({
 	Save = true,
 	Flag = "SlapAuraCooldown"
 })
-SlapAura:AddToggle({
+SlapAuraSection:AddToggle({
 	Name = "Ignore Friends",
 	Default = false,
 	Save = true,
 	Flag = "SlapAuraFriendly"
 })
-SlapAura:AddToggle({
+SlapAuraSection:AddToggle({
 	Name = "Slap Animation",
 	Default = false,
 	Save = true,
 	Flag = "SlapAuraAnim"
+})
+
+local AutoWinSection = Tab_Combat:AddSection({
+	Name = "Auto-Win (OP)"
+})
+AutoWinSection:AddLabel("Not done!!!!")
+AutoWinSection:AddDropdown({
+	Name = "Auto-Win Mode",
+	Default = "Disabled",
+	Options = {"Disabled", "Tween", "Teleport (WIP)", "Hybrid (WIP)"},
+	Save = true,
+	Flag = "AutoWinMode"
+})
+AutoWinSection:AddSlider({
+	Name = "Tween Speed",
+	Min = 0,
+	Max = 500,
+	Default = 0,
+	Increment = 1,
+	ValueName = "studs/second",
+	Save = true,
+	Flag = "AutoWinTweenSpeed"
+})
+AutoWinSection:AddToggle({
+	Name = "Allow Gliding Targets",
+	Default = true,
+	Save = true,
+	Flag = "AutoWinGlidingTargets"
+})
+AutoWinSection:AddToggle({
+	Name = "Lag Compensation",
+	Default = true,
+	Save = true,
+	Flag = "AutoWinLagAdjust"
+})
+AutoWinSection:AddToggle({
+	Name = "Optimizations",
+	Default = true,
+	Save = true,
+	Flag = "AutoWinOptimizations"
 })
 
 -- Player
