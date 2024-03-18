@@ -520,7 +520,7 @@ Tab_Misc:AddToggle({
 	Default = false,
 	Callback = function(v)
 		lobbyhiding = v
-		if not v then return end
+		if not v or not workspace:FindFirstChild("Lobby") then return end
 		
 		lobbyViewerPart.Position = HumanoidRootPart.Position
 		local cframe = HumanoidRootPart.CFrame
