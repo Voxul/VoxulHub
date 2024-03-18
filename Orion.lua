@@ -25,7 +25,7 @@ local OrionLib = {
 			Stroke = Color3.fromRGB(40, 30, 60),
 			Divider = Color3.fromRGB(40, 30, 60),
 			Text = Color3.fromRGB(240, 240, 240),
-			TextDark = Color3.fromRGB(150, 150, 150)
+			TextDark = Color3.fromRGB(150, 150, 150) 
 		}
 	},
 	SelectedTheme = "Voxul",
@@ -237,6 +237,8 @@ local function LoadCfg(Config)
 end
 
 local function SaveCfg(Name)
+	if not OrionLib.SaveCfg then return end
+	
 	local Data = {}
 	for i,v in pairs(OrionLib.Flags) do
 		if v.Save then
