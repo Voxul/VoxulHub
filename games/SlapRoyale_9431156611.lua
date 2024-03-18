@@ -510,6 +510,31 @@ local Tab_Misc = Window:MakeTab({
 	Icon = "http://www.roblox.com/asset/?id=4370318685"
 })
 
+local lobbyViewerPart = Instance.new("Part", workspace)
+lobbyViewerPart.Anchored = true
+lobbyViewerPart.Transparency = 1
+lobbyViewerPart.CanCollide = false
+local lobbyhiding = false
+Tab_Misc:AddToggle({
+	Name = "Hide in lobby",
+	Default = false,
+	Callback = function(v)
+		lobbyhiding = v
+		if not v then return end
+		
+		lobbyViewerPart.Position = HumanoidRootPart.Position
+		local cframe = HumanoidRootPart.CFrame
+		while lobbyhiding and workspace:FindFirstChild("Lobby") do
+			workspace.CurrentCamera.CameraSubject = lobbyViewerPart
+			pivotModelTo(Character, cframe + Vector3.new(math.random(), 150, math.random()), true)
+			task.wait()
+		end
+		workspace.CurrentCamera.CameraSubject = Humanoid
+	end,
+	Save = true,
+	Flag = "LobbyHider"
+})
+
 local AutoVotekicker = Tab_Misc:AddSection({
 	Name = "Auto Votekick"
 })
@@ -648,6 +673,8 @@ end]]
 if workspace:FindFirstChild("Lobby") then 
 	workspace.Lobby.AncestryChanged:Wait()
 end
+
+workspace.CurrentCamera.CameraSubject = Humanoid
 
 -- items
 local itemVacModes = {
