@@ -30,7 +30,7 @@ end)
 local gloveName:StringValue = LocalPlr.Glove
 
 local permanentItems = {"Boba", "Bull's essence", "Frog Brew", "Frog Potion", "Potion of Strength", "Speed Brew", "Speed Potion", "Strength Brew"}
-local healingItems = {"Apple", "Bandage", "Boba", "First Aid Kit", "Forcefield Crystal", "Healing Brew", "Healing Potion"}
+local healingItems = {"Apple", "Bandage", "Boba", "First Aid Kit", "Healing Brew", "Healing Potion"}
 
 -- functions
 local dataPingItem = StatsService.Network:WaitForChild("ServerStatsItem"):WaitForChild("Data Ping")
@@ -249,6 +249,8 @@ local healdebounce = false
 local function heal()
 	if healdebounce then return end
 	if not OrionLib.Flags["AutoHeal"].Value then return end
+	healdebounce = true
+	
 	print("Healing...")
 	OrionLib:MakeNotification({
 		Name = "Auto Heal",
@@ -256,7 +258,7 @@ local function heal()
 		Image = "http://www.roblox.com/asset/?id=6034684956",
 		Time = 3
 	})
-	healdebounce = true
+	
 	useAllToolsOfNames(healingItems, function()
 		task.wait(getDataPing()+0.05)
 		if Humanoid.Health >= OrionLib.Flags["HealSafeHP"].Value or Character:FindFirstChild("Dead") then return "break" end
@@ -688,7 +690,7 @@ if OrionLib.Flags["AutoBusJump"].Value and Character.Head.Transparency == 1 then
 		else
 			OrionLib:MakeNotification({
 				Name = "Instant Land",
-				Content = "Failed to find ground, defaulting to y-250",
+				Content = "Failed to find ground, defaulting to y-300",
 				Image = "http://www.roblox.com/asset/?id=6034457092",
 				Time = 5
 			})
