@@ -115,22 +115,6 @@ local function useAllToolsOfNames(names:{string}, intervalFunc:any?)
 	end
 end
 
-local highlightContainer = CoreGui
-local function highlightModel(object:Instance, transparency:number?, descendantMaxTransparency:number?)
-	transparency = transparency or 0.3
-	
-	for _,v in object:GetDescendants() do
-		if v:IsA("BasePart") then
-			
-		end
-	end
-end
-
-local function esp(plr:Player)
-	if not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then return end
-	
-end
-
 -- disable exploit countermeasures (anti-anticheat)
 -- Remote Blocker
 local blockedRemotes = {[Events.WS] = "FireServer", [Events.WS2] = "FireServer"}
@@ -159,7 +143,16 @@ Tab_Home:AddButton({
 	Name = "Destroy GUI",
 	Callback = function()
 		OrionLib:Destroy()
-	end    
+	end
+})
+Tab_Home:AddToggle({
+	Name = "Save Configuration",
+	Default = true,
+	Callback = function(v)
+		OrionLib.SaveCfg = v
+	end,
+	Save = true,
+	Flag = "SaveConfig"
 })
 
 -- Items
