@@ -576,12 +576,14 @@ if OrionLib.Flags["AutoVotekick"].Value then
 	end)
 end
 
-if not MatchInfo.StartingCompleted.Value then
+--[[if not MatchInfo.StartingCompleted.Value then
 	MatchInfo.StartingCompleted.Changed:Wait()
 	print("starting complete")
-end
+end]]
 
-if workspace:FindFirstChild("Lobby") then workspace.Lobby.AncestryChanged:Wait() end
+if workspace:FindFirstChild("Lobby") then 
+	workspace.Lobby.AncestryChanged:Wait()
+end
 
 -- items
 local itemVacModes = {
@@ -609,6 +611,7 @@ local itemVacModes = {
 	end,
 }
 itemVacModes[OrionLib.Flags["ItemVacMode"].Value]()
+
 if OrionLib.Flags["AutoBombBus"].Value then
 	useAllToolsOfNames({"Bomb"}, function(i)
 		if i%4 == 3 then heal() end
@@ -643,5 +646,49 @@ if OrionLib.Flags["AutoPermItem"].Value then
 		end
 		task.wait(0.1)
 		useAllToolsOfNames(permanentItems)
+	end)
+end
+
+if OrionLib.Flags["AutoBusJump"].Value and Character.Head.Transparency == 1 then
+	while Character.Ragdolled.Value or OrionLib.Flags["BusJumpOnPrompt"].Value and not LocalPlr.PlayerGui:FindFirstChild("JumpPrompt") do
+		task.wait()
+	end
+
+	Events.BusJumping:FireServer()
+	
+	if OrionLib.Flags["LandOnBusJump"].Value then
+		local rayParam = RaycastParams.new()
+		rayParam.FilterDescendantsInstances = {workspace.Terrain}
+		rayParam.FilterType = Enum.RaycastFilterType.Include
+		
+		local ray
+		for _ = 1, 10 do
+			ray = workspace:Raycast(HumanoidRootPart.Position, Vector3.new(0,-500,0), rayParam)
+			if ray then break else task.wait() end
+		end
+		
+		local landingPos
+		if ray then
+			landingPos = CFrame.new(ray.Position + Vector3.new(0,2.5,0))
+		else
+			OrionLib:MakeNotification({
+				Name = "Instant Land",
+				Content = "Failed to find ground, defaulting to y-250",
+				Image = "http://www.roblox.com/asset/?id=6034457092",
+				Time = 5
+			})
+			landingPos = HumanoidRootPart.CFrame - Vector3.new(0,300,0)
+		end
+		
+		local jumpTimeoutStart = os.clock()
+		while (os.clock()-jumpTimeoutStart < 3 or Character.Ragdolled.Value) and not Character:FindFirstChild(gloveName.Value) and not LocalPlr.Backpack:FindFirstChild(gloveName.Value) do
+			pivotModelTo(Character, landingPos, true)
+			task.wait()
+		end
+		pivotModelTo(Character, landingPos, true)
+	end
+	
+	local jpAddCon:RBXScriptConnection; jpAddCon = LocalPlr.PlayerGui.ChildAdded:Connect(function(c)
+		if c.Name == "JumpPrompt" then task.defer(game.Destroy, c); jpAddCon:Disconnect() end
 	end)
 end
