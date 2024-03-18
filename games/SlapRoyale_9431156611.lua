@@ -321,8 +321,8 @@ SlapAura:AddBind({
 SlapAura:AddSlider({
 	Name = "Aura Radius",
 	Min = 0,
-	Max = 15,
-	Default = 15,
+	Max = 25,
+	Default = 25,
 	Increment = 0.5,
 	ValueName = "Studs",
 	Save = true,
