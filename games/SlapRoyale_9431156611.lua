@@ -530,6 +530,7 @@ Tab_Misc:AddToggle({
 			task.wait()
 		end
 		workspace.CurrentCamera.CameraSubject = Humanoid
+		pivotModelTo(Character, cframe, true)
 	end,
 	Save = true,
 	Flag = "LobbyHider"
