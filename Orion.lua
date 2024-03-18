@@ -21,9 +21,9 @@ local OrionLib = {
 		},
 		Voxul = {
 			Main = Color3.fromRGB(25, 25, 25),
-			Second = Color3.fromRGB(30, 30, 30),
-			Stroke = Color3.fromRGB(40, 25, 60),
-			Divider = Color3.fromRGB(40, 25, 60),
+			Second = Color3.fromRGB(32, 32, 32),
+			Stroke = Color3.fromRGB(40, 30, 60),
+			Divider = Color3.fromRGB(40, 30, 60),
 			Text = Color3.fromRGB(240, 240, 240),
 			TextDark = Color3.fromRGB(150, 150, 150)
 		}
