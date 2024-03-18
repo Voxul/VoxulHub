@@ -533,7 +533,7 @@ Tab_Misc:AddToggle({
 		pivotModelTo(Character, cframe, true)
 	end,
 	Save = true,
-	Flag = "LobbyHider"
+	Flag = "LocalCharLobbyHide"
 })
 
 local AutoVotekicker = Tab_Misc:AddSection({
