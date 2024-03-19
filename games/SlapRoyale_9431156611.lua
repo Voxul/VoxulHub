@@ -532,8 +532,8 @@ PlayerOtherSection:AddToggle({
 	Name = "Prevent Tripping",
 	Default = false,
 	Callback = function(v)
-		Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, v)
-		Humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, v)
+		Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, not v)
+		Humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, not v)
 	end,
 	Save = true,
 	Flag = "AutoJumpEnabled"
