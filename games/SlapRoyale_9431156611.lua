@@ -166,7 +166,7 @@ Tab_Home:AddToggle({
 	Default = true,
 	Callback = function(v)
 		OrionLib.SaveCfg = v
-		if v == false then
+		if v == false and isfile(OrionLib.Folder .. "/" .. game.PlaceId .. ".txt") then
 			delfile(OrionLib.Folder .. "/" .. game.PlaceId .. ".txt")
 		end
 	end,
@@ -816,4 +816,10 @@ local autoWinModes = {
 	["Teleport"] = function() warn("Function not available yet!") end,
 	["Hybrid"] = function() warn("Function not available yet!") end,
 }
-autoWinModes[OrionLib.Flags["AutoWinMode"].Value]()
+RunService.Heartbeat:Connect(function(dT)
+	if OrionLib.Flags["AutoWinMode"].Value == "Disabled" then return end
+	
+	if OrionLib.Flags["AutoWinMode"].Value == "Tween" then
+		
+	end
+end)
