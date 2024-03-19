@@ -180,8 +180,18 @@ Tab_Home:AddToggle({
 	Default = true,
 	Callback = function(v)
 		OrionLib.SaveCfg = v
-		if v == false and isfile(OrionLib.Folder .. "/" .. game.PlaceId .. ".txt") then
-			delfile(OrionLib.Folder .. "/" .. game.PlaceId .. ".txt")
+		if v == false then
+			pcall(function()
+				if isfile(OrionLib.Folder .. "/" .. game.PlaceId .. ".txt") then
+					delfile(OrionLib.Folder .. "/" .. game.PlaceId .. ".txt")
+				end
+			end)
+			OrionLib:MakeNotification({
+				Name = "Configuration",
+				Content = "Config will no longer be saved",
+				Image = "http://www.roblox.com/asset/?id=6034509993",
+				Time = 5
+			})
 		end
 	end,
 	Save = false,
@@ -192,7 +202,7 @@ Tab_Home:AddButton({
 	Callback = function()
 		OrionLib:MakeNotification({
 			Name = "Voxul Hub",
-			Content = "Loading InfiniteYield...",
+			Content = "Loading Infinite Yield...",
 			Image = "http://www.roblox.com/asset/?id=6034973074",
 			Time = 5
 		})
@@ -562,7 +572,7 @@ lobbyViewerPart.Transparency = 1
 lobbyViewerPart.CanCollide = false
 local lobbyhiding = false
 Tab_Misc:AddToggle({
-	Name = "Lobby hider",
+	Name = "Lobby Hider",
 	Default = false,
 	Callback = function(v)
 		task.spawn(function()
@@ -946,9 +956,9 @@ RunService.Heartbeat:Connect(function(dT)
 				Name = "Auto-Win",
 				Content = "Paused due to lag ("..os.clock()-lastDataRecvTime.."s)",
 				Image = "http://www.roblox.com/asset/?id=6034457092",
-				Time = 1
+				Time = 3
 			})
-			task.wait(1)
+			task.wait(3)
 			warnNotifDebounce = false
 		end
 		return
