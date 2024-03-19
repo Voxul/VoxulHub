@@ -168,7 +168,7 @@ local Tab_Home = Window:MakeTab({
 	PremiumOnly = false
 })
 
-Tab_Home:AddParagraph("made with ♡ by voxul~","DM voxuloid on Discord if you have problems")
+Tab_Home:AddParagraph("made with ♡ by voxul~","DM voxuloid on Discord if you have problems or suggestions")
 Tab_Home:AddButton({
 	Name = "Destroy GUI",
 	Callback = function()
