@@ -49,8 +49,8 @@ end)
 -- functions
 local dataPingItem = StatsService.Network:WaitForChild("ServerStatsItem"):WaitForChild("Data Ping")
 local function getDataPing():number
-	local _,a = pcall(dataPingItem.GetValue)
-	return a and a/1000 or LocalPlr:GetNetworkPing() + 0.2
+	local s,a = pcall(dataPingItem.GetValue, dataPingItem)
+	return s and a/1000 or LocalPlr:GetNetworkPing() + 0.2
 end
 
 local lastDataRecvTime, lastRecvData = os.clock(), math.floor(StatsService.DataReceiveKbps*10000)
@@ -391,7 +391,7 @@ AutoWinSection:AddSlider({
 	Name = "Tween Speed",
 	Min = 0,
 	Max = 500,
-	Default = 0,
+	Default = 400,
 	Increment = 1,
 	ValueName = "studs/second",
 	Save = true,
