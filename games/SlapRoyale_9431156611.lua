@@ -885,7 +885,6 @@ lOSParams.FilterDescendantsInstances = {}
 
 local function ignoreTarget(plr:Player)
 	if not table.find(ignored_targets, plr) then
-		print("debug ignore target")
 		table.insert(ignored_targets, plr)
 		task.delay(0.8, function()
 			table.remove(ignored_targets, table.find(ignored_targets, plr))
