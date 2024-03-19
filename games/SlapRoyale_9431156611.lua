@@ -193,7 +193,7 @@ Tab_Home:AddButton({
 		OrionLib:MakeNotification({
 			Name = "Voxul Hub",
 			Content = "Loading InfiniteYield...",
-			Image = "http://www.roblox.com/asset/?id=6034934023",
+			Image = "http://www.roblox.com/asset/?id=6034973074",
 			Time = 5
 		})
 		loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
@@ -718,7 +718,14 @@ if OrionLib.Flags["AutoVotekick"].Value then
 		end
 		
 		local selected = players[math.random(1, #players)].Name
-		print("Votekicking "..selected)
+		
+		OrionLib:MakeNotification({
+			Name = "Auto-Votekick",
+			Content = "Votekicking "..selected.." with reason "..OrionLib.Flags["AutoVotekickReason"].Value,
+			Image = "http://www.roblox.com/asset/?id=6034267996",
+			Time = 5
+		})
+		
 		-- ( PlayerName:string, isVoting:boolean, reason:number? | vote:boolean )
 		Events.Votekick:FireServer(selected, false, votekickReasons[OrionLib.Flags["AutoVotekickReason"].Value])
 		if OrionLib.Flags["AutoVotekickDecision"].Value ~= "None" then
@@ -762,9 +769,17 @@ local itemVacModes = {
 			task.wait()
 			pickUpTool(c)
 		end)
-		workspace.Items.ChildRemoved:Wait()
 		
+		workspace.Items.ChildRemoved:Wait()
 		task.wait(getDataPing())
+		while os.clock()-lastDataRecvTime > 0.5 do task.wait() end
+		
+		OrionLib:MakeNotification({
+			Name = "Item Vacuum",
+			Content = "Picked up "..#LocalPlr.Backpack:GetChildren().." items",
+			Image = "http://www.roblox.com/asset/?id=6034767621",
+			Time = 5
+		})
 	end,
 	["Tween"] = function() warn("Function not available yet!") end,
 	["Teleport"] = function() warn("Function not available yet!") end,
@@ -794,9 +809,6 @@ if OrionLib.Flags["AutoTruePower"].Value then
 		end
 	end
 	task.wait(getDataPing())
-	while os.clock()-lastDataRecvTime > 0.5 do
-		task.wait()
-	end
 end
 if OrionLib.Flags["AutoIceCube"].Value then
 	useAllToolsOfNames({"Cube of Ice"})
