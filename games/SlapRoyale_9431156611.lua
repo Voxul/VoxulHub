@@ -58,7 +58,7 @@ RunService.Heartbeat:Connect(function()
 	local currentRecvData = math.floor(StatsService.DataReceiveKbps*10000)
 	if currentRecvData ~= lastRecvData then
 		lastDataRecvTime = os.clock()
-	else
+	elseif os.clock()-lastDataRecvTime > 0.6 then
 		warn("No data received from server")
 	end
 	lastRecvData = currentRecvData
