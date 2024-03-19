@@ -936,7 +936,7 @@ RunService.Heartbeat:Connect(function(dT)
 			
 			local targetPos = tHRM.Position
 			if OrionLib.Flags["AutoWinLagAdjust"].Value then
-				local lagAhead:Vector3 = (targetPos-(lastPositions[target].old or targetPos))/dT*(getDataPing()+0.02)
+				local lagAhead:Vector3 = (targetPos-(lastPositions[target] or targetPos))/dT*(getDataPing()+0.02)
 				if lagAhead.Magnitude > 8 then
 					targetPos += Vector3.new(lagAhead.X, math.clamp(lagAhead.Y, -6, 8), lagAhead.Z)
 				end
