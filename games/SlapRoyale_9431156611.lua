@@ -901,7 +901,7 @@ RunService.Heartbeat:Connect(function(dT)
 		if plr == LocalPlr or not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then continue end
 		lastPositions[plr] = plr.Character.HumanoidRootPart.Position
 		
-		if (not OrionLib.Flags["AutoWinFriendly"].Value or not friends[plr.UserId]) and (lastPositions[plr]-HumanoidRootPart.Position) < 30 then
+		if (not OrionLib.Flags["AutoWinFriendly"].Value or not friends[plr.UserId]) and (lastPositions[plr]-HumanoidRootPart.Position).Magnitude < 30 then
 			Events.Slap:FireServer(getModelClosestChild(plr.Character, HumanoidRootPart.Position))
 			Events.Slap:FireServer(plr.Character.HumanoidRootPart)
 		end
