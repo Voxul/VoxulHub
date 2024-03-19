@@ -350,8 +350,8 @@ SlapAuraSection:AddBind({
 SlapAuraSection:AddSlider({
 	Name = "Aura Radius",
 	Min = 0,
-	Max = 25,
-	Default = 25,
+	Max = 30,
+	Default = 30,
 	Increment = 0.5,
 	ValueName = "Studs",
 	Save = true,
@@ -852,13 +852,32 @@ local function getClosestHittablePlayer(position:Vector3):(Player, number)
 end
 
 local lastPositions = {}
-local lagNotifDebounce = false
+local warnNotifDebounce = false
 RunService.Heartbeat:Connect(function(dT)
 	if Character:FindFirstChild("Dead") or OrionLib.Flags["AutoWinMode"].Value == "Disabled" then return end
 	
+	if not Character:FindFirstChild(gloveName.Value) then
+		if not LocalPlr.Backpack:FindFirstChild(gloveName.Value) then
+			if not warnNotifDebounce then
+				warnNotifDebounce = true
+				OrionLib:MakeNotification({
+					Name = "Auto-Win",
+					Content = "Glove not found!",
+					Image = "http://www.roblox.com/asset/?id=6034457092",
+					Time = 1
+				})
+				task.wait(1)
+				warnNotifDebounce = false
+			end
+			
+			return
+		end
+		Humanoid:EquipTool(LocalPlr.Backpack[gloveName.Value])
+	end
+	
 	if os.clock()-lastDataRecvTime > 0.6 then
-		if not lagNotifDebounce then
-			lagNotifDebounce = true
+		if not warnNotifDebounce then
+			warnNotifDebounce = true
 			OrionLib:MakeNotification({
 				Name = "Auto-Win",
 				Content = "Paused due to lag ("..os.clock()-lastDataRecvTime.."s)",
@@ -866,15 +885,24 @@ RunService.Heartbeat:Connect(function(dT)
 				Time = 1
 			})
 			task.wait(1)
-			lagNotifDebounce = false
+			warnNotifDebounce = false
 		end
-		
 		return
 	end
 	
 	if OrionLib.Flags["AutoWinMode"].Value == "Tween" then
 		local target, distance = getClosestHittablePlayer(HumanoidRootPart.Position)
+		local targetChar = target.Character
+		local tHRM:BasePart = targetChar.HumanoidRootPart
+	end
+	
+	for _,plr in Players:GetPlayers() do
+		if plr == LocalPlr or not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then continue end
+		lastPositions[plr] = plr.Character.HumanoidRootPart.Position
 		
-		
+		if (not OrionLib.Flags["AutoWinFriendly"].Value or not friends[plr.UserId]) and (lastPositions[plr]-HumanoidRootPart.Position) < 30 then
+			Events.Slap:FireServer(getModelClosestChild(plr.Character, HumanoidRootPart.Position))
+			Events.Slap:FireServer(plr.Character.HumanoidRootPart)
+		end
 	end
 end)
