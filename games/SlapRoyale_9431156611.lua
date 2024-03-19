@@ -312,6 +312,8 @@ SlapAuraSection:AddToggle({
 			for _,v in Players:GetPlayers() do
 				if OrionLib.Flags["SlapAuraFriendly"] and friends[v.UserId] or not canHitPlayer(v) then 
 					continue
+				elseif friends[v.UserId] == nil then
+					friends[v.UserId] = LocalPlr:IsFriendsWith(v.UserId)
 				end
 				
 				local distance = (v.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
@@ -575,6 +577,12 @@ AutoVotekicker:AddSlider({
 	Save = true,
 	Flag = "AutoVotekickDelay"
 })
+AutoVotekicker:AddToggle({
+	Name = "Ignore Friends",
+	Default = false,
+	Save = true,
+	Flag = "AutoVotekickFriendly"
+})
 AutoVotekicker:AddDropdown({
 	Name = "Reason",
 	Default = "Exploiting",
@@ -674,6 +682,15 @@ if OrionLib.Flags["AutoVotekick"].Value then
 	task.delay(OrionLib.Flags["AutoVotekickDelay"].Value, function()
 		local players = Players:GetPlayers()
 		table.remove(players, table.find(players, LocalPlr))
+		
+		if OrionLib.Flags["AutoVotekickFriendly"] then
+			for userId, friended in friends do
+				if not friended then continue end
+				local tIndex = table.find(players, Players:GetPlayerByUserId(userId))
+				if tIndex then table.remove(players, tIndex) end
+			end
+		end
+		
 		local selected = players[math.random(1, #players)].Name
 		print("Votekicking "..selected)
 		-- ( PlayerName:string, isVoting:boolean, reason:number? | vote:boolean )
