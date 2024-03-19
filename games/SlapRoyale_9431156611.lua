@@ -58,7 +58,7 @@ RunService.Heartbeat:Connect(function()
 	local currentRecvData = math.floor(StatsService.DataReceiveKbps*10000)
 	if currentRecvData ~= lastRecvData then
 		lastDataRecvTime = os.clock()
-	elseif os.clock()-lastDataRecvTime > 0.6 then
+	elseif os.clock()-lastDataRecvTime > 0.5 then
 		warn("No data received from server")
 	end
 	lastRecvData = currentRecvData
@@ -91,7 +91,7 @@ local function getModelClosestChild(model:Model, position:Vector3)
 	return closestPart
 end
 
-local function canHitPlayer(player:Player, checkVulnerability:boolean?)
+local function canHitPlayer(player:Player, checkVulnerability:boolean?, checkPosition:boolean?)
 	if player == LocalPlr then return false end
 	local char = player.Character
 	if not char or not char:FindFirstChild("Humanoid") or not char:FindFirstChild("HumanoidRootPart") or not char:FindFirstChild("Head") then return false end
@@ -99,6 +99,12 @@ local function canHitPlayer(player:Player, checkVulnerability:boolean?)
 	
 	if checkVulnerability then
 		if char.Ragdolled.Value or not char.Vulnerable.Value or char.Head.Transparency == 1 and not char:FindFirstChildWhichIsA("Tool") and not player.Backpack:FindFirstChildWhichIsA("Tool") then return false end
+	end
+	if checkPosition then
+		local CHRMPOS = char.HumanoidRootPart.Position
+		if math.abs(CHRMPOS.X) > 2000 or math.abs(CHRMPOS.Z) > 2000 or CHRMPOS.Y < 180 or CHRMPOS.Y > 800 then
+			return false
+		end
 	end
 	
 	return true
@@ -132,7 +138,12 @@ local function useAllToolsOfNames(names:{string}, intervalFunc:any?)
 end
 
 local function lerpVector3WithSpeed(a:Vector3, goal:Vector3, speed:number, moveTick:number, maxAlpha:number?)
-	return a:Lerp(goal, math.min(speed/(a-goal).Magnitude * (os.clock()-moveTick), maxAlpha or 1))
+	return a:Lerp(goal, math.min(speed/(a-goal).Magnitude * moveTick, maxAlpha or 1))
+end
+
+local function slapPlayer(character:Model)
+	Events.Slap:FireServer(getModelClosestChild(character, HumanoidRootPart.Position))
+	Events.Slap:FireServer(character.HumanoidRootPart)
 end
 
 -- disable exploit countermeasures (anti-anticheat)
@@ -321,8 +332,7 @@ SlapAuraSection:AddToggle({
 				local distance = (v.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
 				if distance > OrionLib.Flags["SlapAuraRange"].Value then continue end
 				
-				Events.Slap:FireServer(getModelClosestChild(v.Character, HumanoidRootPart.Position))
-				Events.Slap:FireServer(v.Character.HumanoidRootPart)
+				slapPlayer(v.Character)
 				
 				if OrionLib.Flags["SlapAuraAnim"].Value then
 					Character[gloveName.Value]:Activate()
@@ -408,7 +418,7 @@ AutoWinSection:AddToggle({
 	Flag = "AutoWinFriendly"
 })
 AutoWinSection:AddToggle({
-	Name = "Allow Gliding Targets",
+	Name = "Target Gliding Players",
 	Default = true,
 	Save = true,
 	Flag = "AutoWinGlidingTargets"
@@ -784,7 +794,7 @@ if OrionLib.Flags["AutoTruePower"].Value then
 		end
 	end
 	task.wait(getDataPing())
-	while os.clock()-lastDataRecvTime > 0.6 do
+	while os.clock()-lastDataRecvTime > 0.5 do
 		task.wait()
 	end
 end
@@ -849,13 +859,14 @@ end
 
 -- Auto Win
 local ignored_targets = {}
-local function getClosestHittablePlayer(position:Vector3):(Player, number)
+local function getClosestHittablePlayer():(Player, number)
 	local closest, closestMagnitude = nil, nil
 
 	for _,plr in Players:GetPlayers() do
-		if plr == LocalPlr or table.find(ignored_targets, plr) or OrionLib.Flags["AutoWinFriendly"].Value and friends[plr.UserId] or not canHitPlayer(plr, true) then continue end
-
-		local magnitude = (plr.Character.HumanoidRootPart.Position-position).Magnitude
+		if plr == LocalPlr or table.find(ignored_targets, plr) or OrionLib.Flags["AutoWinFriendly"].Value and friends[plr.UserId] or not canHitPlayer(plr, true, true) then continue end
+		if plr.Character:FindFirstChild("Glider") and not OrionLib.Flags["AutoWinGlidingTargets"].Value then continue end
+		
+		local magnitude = (plr.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
 		if not closest or magnitude < closestMagnitude then
 			closest = plr
 			closestMagnitude = magnitude
@@ -863,6 +874,19 @@ local function getClosestHittablePlayer(position:Vector3):(Player, number)
 	end
 
 	return closest, closestMagnitude
+end
+
+local Vector3XZ = Vector3.new(1,0,1)
+local lOSParams = RaycastParams.new()
+lOSParams.FilterType = Enum.RaycastFilterType.Exclude
+lOSParams.IgnoreWater = true
+lOSParams.FilterDescendantsInstances = {}
+
+local function ignoreTarget(plr:Player)
+	table.insert(ignored_targets, plr)
+	task.delay(0.8, function()
+		table.remove(ignored_targets, table.find(ignored_targets, plr))
+	end)
 end
 
 local lastPositions = {}
@@ -889,7 +913,7 @@ RunService.Heartbeat:Connect(function(dT)
 		Humanoid:EquipTool(LocalPlr.Backpack[gloveName.Value])
 	end
 	
-	if os.clock()-lastDataRecvTime > 0.6 then
+	if os.clock()-lastDataRecvTime > 0.5 then
 		if not warnNotifDebounce then
 			warnNotifDebounce = true
 			OrionLib:MakeNotification({
@@ -904,20 +928,54 @@ RunService.Heartbeat:Connect(function(dT)
 		return
 	end
 	
-	if OrionLib.Flags["AutoWinMode"].Value == "Tween" then
-		local target, distance = getClosestHittablePlayer(HumanoidRootPart.Position)
-		if not target then return end
+	local target, distance = getClosestHittablePlayer()
+	if target then
 		local targetChar = target.Character
-		local tHRM:BasePart = targetChar.HumanoidRootPart
+		if OrionLib.Flags["AutoWinMode"].Value == "Tween" then
+			local tHRM:BasePart = targetChar.HumanoidRootPart
+			
+			local targetPos = tHRM.Position
+			if OrionLib.Flags["AutoWinLagAdjust"].Value then
+				local lagAhead:Vector3 = (targetPos-(lastPositions[target].old or targetPos))/dT*(getDataPing()+0.02)
+				if lagAhead.Magnitude > 8 then
+					targetPos += Vector3.new(lagAhead.X, math.clamp(lagAhead.Y, -6, 8), lagAhead.Z)
+				end
+			end
+			
+			pivotModelTo(Character,
+				CFrame.new(lerpVector3WithSpeed(HumanoidRootPart.Position, targetPos, OrionLib.Flags["AutoWinTweenSpeed"].Value, dT))*CFrame.Angles(math.rad(180), 0, 0),
+				true
+			)
+			
+			if OrionLib.Flags["AutoWinOptimizations"].Value and (HumanoidRootPart.Position-targetPos).Magnitude < 0.5 then
+				if not targetChar:FindFirstChild("Glider") then
+					lOSParams.FilterDescendantsInstances = {Character}
+					local losTo = workspace:Raycast(HumanoidRootPart.Position, (tHRM.Position-HumanoidRootPart.Position), lOSParams)
+					lOSParams.FilterDescendantsInstances = {target, workspace.Terrain}
+					local losFrom = workspace:Raycast(tHRM.Position, (HumanoidRootPart.Position-tHRM.Position), lOSParams)
+					if losTo and losTo.Instance:IsDescendantOf(target) and losFrom and losFrom.Instance:IsDescendantOf(Character) then
+						ignoreTarget(target)
+					end
+				end
+			end
+		end
+		
+		slapPlayer(targetChar)
+	else
+		pivotModelTo(Character,
+			CFrame.new(lerpVector3WithSpeed(HumanoidRootPart.Position, HumanoidRootPart.Position*Vector3XZ, OrionLib.Flags["AutoWinTweenSpeed"].Value, dT))*CFrame.Angles(math.rad(180), 0, 0),
+			true
+		)
 	end
 	
 	for _,plr in Players:GetPlayers() do
-		if plr == LocalPlr or not plr.Character or not plr.Character:FindFirstChild("HumanoidRootPart") then continue end
-		lastPositions[plr] = plr.Character.HumanoidRootPart.Position
+		if plr == LocalPlr then continue end
+		local char = plr.Character
+		if not char or not char:FindFirstChild("HumanoidRootPart") then continue end
+		lastPositions[plr] = char.HumanoidRootPart.Position
 		
-		if (not OrionLib.Flags["AutoWinFriendly"].Value or not friends[plr.UserId]) and (lastPositions[plr]-HumanoidRootPart.Position).Magnitude < 30 then
-			Events.Slap:FireServer(getModelClosestChild(plr.Character, HumanoidRootPart.Position))
-			Events.Slap:FireServer(plr.Character.HumanoidRootPart)
+		if (not OrionLib.Flags["AutoWinFriendly"].Value or not friends[plr.UserId]) and (char.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude < 20 then
+			slapPlayer(char)
 		end
 	end
 end)
