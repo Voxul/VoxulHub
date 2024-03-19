@@ -115,6 +115,23 @@ local function useAllToolsOfNames(names:{string}, intervalFunc:any?)
 	end
 end
 
+local ignored_targets = {}
+local function getClosestHittableCharacter(position:Vector3):(Model, number)
+	local closest, closestMagnitude = nil, nil
+	
+	for _,plr in Players:GetPlayers() do
+		if plr == LocalPlr or table.find(ignored_targets, plr.Character) or not canHitPlayer(plr, true) then continue end
+		
+		local magnitude = (plr.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
+		if not closest or magnitude < closestMagnitude then
+			closest = plr.Character
+			closestMagnitude = magnitude
+		end
+	end
+	
+	return closest, closestMagnitude
+end
+
 -- disable exploit countermeasures (anti-anticheat)
 -- Remote Blocker
 local blockedRemotes = {[Events.WS] = "FireServer", [Events.WS2] = "FireServer"}
@@ -182,7 +199,7 @@ local ItemVacSection = Tab_Items:AddSection({
 ItemVacSection:AddDropdown({
 	Name = "Item Vacuum Mode",
 	Default = "Disabled",
-	Options = {"Disabled", "Pick Up", "Tween (WIP)", "Teleport (WIP)", "Hybrid (WIP)"},
+	Options = {"Disabled", "Pick Up"--[[, "Tween (WIP)", "Teleport (WIP)", "Hybrid (WIP)"]]},
 	Save = true,
 	Flag = "ItemVacMode"
 })
@@ -271,7 +288,7 @@ local function heal()
 	})
 	
 	useAllToolsOfNames(healingItems, function()
-		task.wait(getDataPing()+0.05)
+		task.wait(getDataPing())
 		if Humanoid.Health >= OrionLib.Flags["HealSafeHP"].Value or Character:FindFirstChild("Dead") then return "break" end
 	end)
 	healdebounce = false
@@ -371,7 +388,7 @@ AutoWinSection:AddLabel("Not done!!!!")
 AutoWinSection:AddDropdown({
 	Name = "Auto-Win Mode",
 	Default = "Disabled",
-	Options = {"Disabled", "Tween", "Teleport (WIP)", "Hybrid (WIP)"},
+	Options = {"Disabled", "Tween"--[[, "Teleport", "Hybrid"]]},
 	Save = true,
 	Flag = "AutoWinMode"
 })
@@ -658,7 +675,7 @@ if OrionLib.Flags["AutoVotekick"].Value then
 		table.remove(players, table.find(players, LocalPlr))
 		local selected = players[math.random(1, #players)].Name
 		print("Votekicking "..selected)
-		-- ( PlayerName:string, isVoting:boolean, reason:string? | vote:boolean )
+		-- ( PlayerName:string, isVoting:boolean, reason:number? | vote:boolean )
 		Events.Votekick:FireServer(selected, false, votekickReasons[OrionLib.Flags["AutoVotekickReason"].Value])
 		if OrionLib.Flags["AutoVotekickDecision"].Value ~= "None" then
 			task.wait()
@@ -681,8 +698,6 @@ workspace.CurrentCamera.CameraSubject = Humanoid
 -- items
 local itemVacModes = {
 	["Disabled"] = function() end,
-	["Tween"] = function() warn("Function not available yet!") end,
-	["Teleport"] = function() warn("Function not available yet!") end,
 	["Pick Up"] = function()
 		local function pickUpTool(v:Tool)
 			if not v:IsA("Tool") then return end
@@ -706,6 +721,9 @@ local itemVacModes = {
 		workspace.Items.ChildRemoved:Wait()
 		task.wait(getDataPing())
 	end,
+	["Tween"] = function() warn("Function not available yet!") end,
+	["Teleport"] = function() warn("Function not available yet!") end,
+	["Hybrid"] = function() warn("Function not available yet!") end,
 }
 itemVacModes[OrionLib.Flags["ItemVacMode"].Value]()
 
@@ -746,6 +764,7 @@ if OrionLib.Flags["AutoPermItem"].Value then
 	end)
 end
 
+-- Auto Bus Jump
 if OrionLib.Flags["AutoBusJump"].Value and Character.Head.Transparency == 1 then
 	while Character.Ragdolled.Value or OrionLib.Flags["BusJumpOnPrompt"].Value and not LocalPlr.PlayerGui:FindFirstChild("JumpPrompt") do
 		task.wait()
@@ -789,3 +808,12 @@ if OrionLib.Flags["AutoBusJump"].Value and Character.Head.Transparency == 1 then
 		if c.Name == "JumpPrompt" then task.defer(game.Destroy, c); jpAddCon:Disconnect() end
 	end)
 end
+
+-- Auto Win
+local autoWinModes = {
+	["Disabled"] = function() end,
+	["Tween"] = function() warn("Function not available yet!") end,
+	["Teleport"] = function() warn("Function not available yet!") end,
+	["Hybrid"] = function() warn("Function not available yet!") end,
+}
+autoWinModes[OrionLib.Flags["AutoWinMode"].Value]()
