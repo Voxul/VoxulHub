@@ -103,6 +103,7 @@ local function canHitPlayer(player:Player, checkVulnerability:boolean?, checkPos
 	if checkPosition then
 		local CHRMPOS = char.HumanoidRootPart.Position
 		if math.abs(CHRMPOS.X) > 2000 or math.abs(CHRMPOS.Z) > 2000 or CHRMPOS.Y < 180 or CHRMPOS.Y > 800 then
+			print("debug pos check fail")
 			return false
 		end
 	end
@@ -419,7 +420,7 @@ AutoWinSection:AddToggle({
 })
 AutoWinSection:AddToggle({
 	Name = "Target Gliding Players",
-	Default = true,
+	Default = false,
 	Save = true,
 	Flag = "AutoWinGlidingTargets"
 })
@@ -884,6 +885,7 @@ lOSParams.FilterDescendantsInstances = {}
 
 local function ignoreTarget(plr:Player)
 	if not table.find(ignored_targets, plr) then
+		print("debug ignore target")
 		table.insert(ignored_targets, plr)
 		task.delay(0.8, function()
 			table.remove(ignored_targets, table.find(ignored_targets, plr))
