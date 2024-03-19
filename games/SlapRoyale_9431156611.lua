@@ -841,7 +841,7 @@ local function getClosestHittablePlayer(position:Vector3):(Player, number)
 	for _,plr in Players:GetPlayers() do
 		if plr == LocalPlr or table.find(ignored_targets, plr) or OrionLib.Flags["AutoWinFriendly"].Value and friends[plr.UserId] or not canHitPlayer(plr, true) then continue end
 
-		local magnitude = (plr.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
+		local magnitude = (plr.Character.HumanoidRootPart.Position-position).Magnitude
 		if not closest or magnitude < closestMagnitude then
 			closest = plr
 			closestMagnitude = magnitude
@@ -892,6 +892,7 @@ RunService.Heartbeat:Connect(function(dT)
 	
 	if OrionLib.Flags["AutoWinMode"].Value == "Tween" then
 		local target, distance = getClosestHittablePlayer(HumanoidRootPart.Position)
+		if not target then return end
 		local targetChar = target.Character
 		local tHRM:BasePart = targetChar.HumanoidRootPart
 	end
