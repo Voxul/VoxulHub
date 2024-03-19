@@ -32,17 +32,35 @@ local gloveName:StringValue = LocalPlr.Glove
 local permanentItems = {"Boba", "Bull's essence", "Frog Brew", "Frog Potion", "Potion of Strength", "Speed Brew", "Speed Potion", "Strength Brew"}
 local healingItems = {"Apple", "Bandage", "Boba", "First Aid Kit", "Healing Brew", "Healing Potion"}
 
+local friends = {}
+local _,friendsOnline = pcall(LocalPlr.GetFriendsOnline, LocalPlr)
+for _,friend in friendsOnline or {} do
+	friends[friend.VisitorId] = true
+end
+for _,plr in Players:GetPlayers() do
+	if friends[plr.UserId] then continue end
+	friends[plr.UserId] = LocalPlr:IsFriendsWith(plr.UserId)
+end
+Players.PlayerAdded:Connect(function(plr)
+	if friends[plr.UserId] then return end
+	friends[plr.UserId] = LocalPlr:IsFriendsWith(plr.UserId)
+end)
+
 -- functions
 local dataPingItem = StatsService.Network:WaitForChild("ServerStatsItem"):WaitForChild("Data Ping")
 local function getDataPing():number
-	local a
-	xpcall(function()
-		a = dataPingItem:GetValue()/1000
-	end, function()
-		a = LocalPlr:GetNetworkPing() + .2
-	end)
-	return a
+	local _,a = pcall(dataPingItem.GetValue)
+	return a and a/1000 or LocalPlr:GetNetworkPing() + 0.2
 end
+
+local lastDataRecvTime, lastRecvData = os.clock(), math.floor(StatsService.DataReceiveKbps*10000)
+RunService.Heartbeat:Connect(function()
+	local currentRecvData = math.floor(StatsService.DataReceiveKbps*10000)
+	if currentRecvData ~= lastRecvData then
+		lastDataRecvTime = os.clock()
+	end
+	lastRecvData = currentRecvData
+end)
 
 local function pivotModelTo(model:Model, cFrame:CFrame, removeVelocity:boolean?)
 	model:PivotTo(cFrame)
@@ -69,10 +87,6 @@ local function getModelClosestChild(model:Model, position:Vector3)
 	end
 
 	return closestPart
-end
-
-local function lerpVector3WithSpeed(a:Vector3, goal:Vector3, speed:number, moveTick:number, maxAlpha:number?)
-	return a:Lerp(goal, math.min(speed/(a-goal).Magnitude * (os.clock()-moveTick), maxAlpha or 1))
 end
 
 local function canHitPlayer(player:Player, checkVulnerability:boolean?)
@@ -115,21 +129,8 @@ local function useAllToolsOfNames(names:{string}, intervalFunc:any?)
 	end
 end
 
-local ignored_targets = {}
-local function getClosestHittableCharacter(position:Vector3):(Model, number)
-	local closest, closestMagnitude = nil, nil
-	
-	for _,plr in Players:GetPlayers() do
-		if plr == LocalPlr or table.find(ignored_targets, plr.Character) or not canHitPlayer(plr, true) then continue end
-		
-		local magnitude = (plr.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
-		if not closest or magnitude < closestMagnitude then
-			closest = plr.Character
-			closestMagnitude = magnitude
-		end
-	end
-	
-	return closest, closestMagnitude
+local function lerpVector3WithSpeed(a:Vector3, goal:Vector3, speed:number, moveTick:number, maxAlpha:number?)
+	return a:Lerp(goal, math.min(speed/(a-goal).Magnitude * (os.clock()-moveTick), maxAlpha or 1))
 end
 
 -- disable exploit countermeasures (anti-anticheat)
@@ -301,7 +302,6 @@ end)
 local SlapAuraSection = Tab_Combat:AddSection({
 	Name = "Slap Aura"
 })
-local friends = {}
 SlapAuraSection:AddToggle({
 	Name = "Enabled",
 	Default = false,
@@ -310,13 +310,8 @@ SlapAuraSection:AddToggle({
 		while OrionLib.Flags["SlapAura"].Value and task.wait() do
 			if not Character:FindFirstChild(gloveName.Value) then continue end
 			for _,v in Players:GetPlayers() do
-				if friends[v.UserId] and OrionLib.Flags["SlapAuraFriendly"] or not canHitPlayer(v) then 
-					continue 
-				elseif friends[v.UserId] == nil then
-					friends[v.UserId] = false
-					task.spawn(function()
-						friends[v.UserId] = LocalPlr:IsFriendsWith(v.UserId)
-					end)
+				if OrionLib.Flags["SlapAuraFriendly"] and friends[v.UserId] or not canHitPlayer(v) then 
+					continue
 				end
 				
 				local distance = (v.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
@@ -401,6 +396,12 @@ AutoWinSection:AddSlider({
 	ValueName = "studs/second",
 	Save = true,
 	Flag = "AutoWinTweenSpeed"
+})
+AutoWinSection:AddToggle({
+	Name = "Ignore Friends",
+	Default = false,
+	Save = true,
+	Flag = "AutoWinFriendly"
 })
 AutoWinSection:AddToggle({
 	Name = "Allow Gliding Targets",
@@ -719,6 +720,7 @@ local itemVacModes = {
 			pickUpTool(c)
 		end)
 		workspace.Items.ChildRemoved:Wait()
+		
 		task.wait(getDataPing())
 	end,
 	["Tween"] = function() warn("Function not available yet!") end,
@@ -749,6 +751,9 @@ if OrionLib.Flags["AutoTruePower"].Value then
 		end
 	end
 	task.wait(getDataPing())
+	while os.clock()-lastDataRecvTime > 0.6 do
+		task.wait()
+	end
 end
 if OrionLib.Flags["AutoIceCube"].Value then
 	useAllToolsOfNames({"Cube of Ice"})
@@ -810,16 +815,40 @@ if OrionLib.Flags["AutoBusJump"].Value and Character.Head.Transparency == 1 then
 end
 
 -- Auto Win
-local autoWinModes = {
-	["Disabled"] = function() end,
-	["Tween"] = function() warn("Function not available yet!") end,
-	["Teleport"] = function() warn("Function not available yet!") end,
-	["Hybrid"] = function() warn("Function not available yet!") end,
-}
+local ignored_targets = {}
+local function getClosestHittablePlayer(position:Vector3):(Player, number)
+	local closest, closestMagnitude = nil, nil
+
+	for _,plr in Players:GetPlayers() do
+		if plr == LocalPlr or table.find(ignored_targets, plr) or OrionLib.Flags["AutoWinFriendly"].Value and friends[plr.UserId] or not canHitPlayer(plr, true) then continue end
+
+		local magnitude = (plr.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
+		if not closest or magnitude < closestMagnitude then
+			closest = plr
+			closestMagnitude = magnitude
+		end
+	end
+
+	return closest, closestMagnitude
+end
+
+local lastPositions = {}
 RunService.Heartbeat:Connect(function(dT)
-	if OrionLib.Flags["AutoWinMode"].Value == "Disabled" then return end
+	if Character:FindFirstChild("Dead") or OrionLib.Flags["AutoWinMode"].Value == "Disabled" then return end
+	
+	if os.clock()-lastDataRecvTime > 0.6 then
+		OrionLib:MakeNotification({
+			Name = "Auto-Win",
+			Content = "Paused due to lag ("..os.clock()-lastDataRecvTime.."s)",
+			Image = "http://www.roblox.com/asset/?id=6034457092",
+			Time = 0.5
+		})
+		return
+	end
 	
 	if OrionLib.Flags["AutoWinMode"].Value == "Tween" then
+		local target, distance = getClosestHittablePlayer(HumanoidRootPart.Position)
+		
 		
 	end
 end)
