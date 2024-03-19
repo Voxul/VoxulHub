@@ -833,16 +833,23 @@ local function getClosestHittablePlayer(position:Vector3):(Player, number)
 end
 
 local lastPositions = {}
+local lagNotifDebounce = false
 RunService.Heartbeat:Connect(function(dT)
 	if Character:FindFirstChild("Dead") or OrionLib.Flags["AutoWinMode"].Value == "Disabled" then return end
 	
 	if os.clock()-lastDataRecvTime > 0.6 then
-		OrionLib:MakeNotification({
-			Name = "Auto-Win",
-			Content = "Paused due to lag ("..os.clock()-lastDataRecvTime.."s)",
-			Image = "http://www.roblox.com/asset/?id=6034457092",
-			Time = 0.5
-		})
+		if not lagNotifDebounce then
+			lagNotifDebounce = true
+			OrionLib:MakeNotification({
+				Name = "Auto-Win",
+				Content = "Paused due to lag ("..os.clock()-lastDataRecvTime.."s)",
+				Image = "http://www.roblox.com/asset/?id=6034457092",
+				Time = 1
+			})
+			task.wait(1)
+			lagNotifDebounce = false
+		end
+		
 		return
 	end
 	
