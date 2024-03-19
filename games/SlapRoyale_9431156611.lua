@@ -102,7 +102,7 @@ local function canHitPlayer(player:Player, checkVulnerability:boolean?, checkPos
 	end
 	if checkPosition then
 		local CHRMPOS = char.HumanoidRootPart.Position
-		if math.abs(CHRMPOS.X) > 2000 or math.abs(CHRMPOS.Z) > 2000 or CHRMPOS.Y < 180 or CHRMPOS.Y > 800 then
+		if math.abs(CHRMPOS.X) > 2000 or math.abs(CHRMPOS.Z) > 2000 or CHRMPOS.Y < -180 or CHRMPOS.Y > 800 then
 			print("debug pos check fail", CHRMPOS)
 			return false
 		end
@@ -247,7 +247,7 @@ AutoItemSection:AddToggle({
 	Flag = "AutoTruePower"
 })
 AutoItemSection:AddToggle({
-	Name = "Permanent items",
+	Name = "Permanent Items",
 	Default = false,
 	Save = true,
 	Flag = "AutoPermItem"
@@ -394,7 +394,6 @@ SlapAuraSection:AddToggle({
 local AutoWinSection = Tab_Combat:AddSection({
 	Name = "Auto-Win (OP)"
 })
-AutoWinSection:AddLabel("Not done!!!!")
 AutoWinSection:AddDropdown({
 	Name = "Auto-Win Mode",
 	Default = "Disabled",
@@ -408,10 +407,11 @@ AutoWinSection:AddSlider({
 	Max = 500,
 	Default = 400,
 	Increment = 1,
-	ValueName = "studs/second",
+	ValueName = "studs/sec",
 	Save = true,
 	Flag = "AutoWinTweenSpeed"
 })
+AutoWinSection:AddLabel("Going too fast will kick you")
 AutoWinSection:AddToggle({
 	Name = "Ignore Friends",
 	Default = false,
