@@ -953,10 +953,11 @@ RunService.Heartbeat:Connect(function(dT)
 					local losTo = workspace:Raycast(HumanoidRootPart.Position, (tHRM.Position-HumanoidRootPart.Position), lOSParams)
 					lOSParams.FilterDescendantsInstances = {target, workspace.Terrain}
 					local losFrom = workspace:Raycast(tHRM.Position, (HumanoidRootPart.Position-tHRM.Position), lOSParams)
-					if losTo and losTo.Instance:IsDescendantOf(target) and losFrom and losFrom.Instance:IsDescendantOf(Character) then
-						ignoreTarget(target)
+					if not losTo or not losTo.Instance:IsDescendantOf(target) or not losFrom or not losFrom.Instance:IsDescendantOf(Character) then
+						task.wait(0.08)
 					end
 				end
+				ignoreTarget(target)
 			end
 		end
 		
