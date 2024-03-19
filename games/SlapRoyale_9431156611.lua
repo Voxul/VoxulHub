@@ -485,16 +485,6 @@ Humanoid:GetPropertyChangedSignal("JumpPower"):Connect(function()
 	end
 end)
 PlrMovement:AddToggle({
-	Name = "Auto-Jump Enabled",
-	Default = false,
-	Callback = function(v)
-		LocalPlr.AutoJumpEnabled = v
-		Humanoid.AutoJumpEnabled = v
-	end,
-	Save = true,
-	Flag = "AutoJumpEnabled"
-})
-PlrMovement:AddToggle({
 	Name = "Sprint Enabled",
 	Default = true,
 	Save = true,
@@ -524,6 +514,29 @@ PlrMovement:AddBind({
 	end,
 	Save = true,
 	Flag = "SprintBind"
+})
+local PlayerOtherSection = Tab_Player:AddSection({
+	Name = "Other"
+})
+PlayerOtherSection:AddToggle({
+	Name = "Auto-Jump Enabled",
+	Default = false,
+	Callback = function(v)
+		LocalPlr.AutoJumpEnabled = v
+		Humanoid.AutoJumpEnabled = v
+	end,
+	Save = true,
+	Flag = "AutoJumpEnabled"
+})
+PlayerOtherSection:AddToggle({
+	Name = "Prevent Tripping",
+	Default = false,
+	Callback = function(v)
+		Humanoid:SetStateEnabled(Enum.HumanoidStateType.FallingDown, v)
+		Humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, v)
+	end,
+	Save = true,
+	Flag = "AutoJumpEnabled"
 })
 
 -- Misc
