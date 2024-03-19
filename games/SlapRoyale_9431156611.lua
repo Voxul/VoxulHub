@@ -883,10 +883,12 @@ lOSParams.IgnoreWater = true
 lOSParams.FilterDescendantsInstances = {}
 
 local function ignoreTarget(plr:Player)
-	table.insert(ignored_targets, plr)
-	task.delay(0.8, function()
-		table.remove(ignored_targets, table.find(ignored_targets, plr))
-	end)
+	if not table.find(ignored_targets, plr) then
+		table.insert(ignored_targets, plr)
+		task.delay(0.8, function()
+			table.remove(ignored_targets, table.find(ignored_targets, plr))
+		end)
+	end
 end
 
 local lastPositions = {}
@@ -956,6 +958,8 @@ RunService.Heartbeat:Connect(function(dT)
 					if not losTo or not losTo.Instance:IsDescendantOf(target) or not losFrom or not losFrom.Instance:IsDescendantOf(Character) then
 						task.wait(0.08)
 					end
+				else
+					task.wait(0.08)
 				end
 				ignoreTarget(target)
 			end
