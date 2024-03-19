@@ -103,7 +103,7 @@ local function canHitPlayer(player:Player, checkVulnerability:boolean?, checkPos
 	if checkPosition then
 		local CHRMPOS = char.HumanoidRootPart.Position
 		if math.abs(CHRMPOS.X) > 2000 or math.abs(CHRMPOS.Z) > 2000 or CHRMPOS.Y < 180 or CHRMPOS.Y > 800 then
-			print("debug pos check fail")
+			print("debug pos check fail", CHRMPOS)
 			return false
 		end
 	end
