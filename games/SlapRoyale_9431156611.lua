@@ -647,7 +647,7 @@ AutoBusJumper:AddToggle({
 })
 
 local AntiBarriers = Tab_Misc:AddSection({
-	Name = "Anti Barrier/Hazards"
+	Name = "Anti Barriers/Hazards"
 })
 AntiBarriers:AddToggle({
 	Name = "Safe Acid",
@@ -693,6 +693,18 @@ AntiBarriers:AddToggle({
 	Save = true,
 	Flag = "SolidLava"
 })
+
+Tab_Misc:AddToggle({
+	Name = "Remove Zone Effects",
+	Default = false,
+	Save = true,
+	Flag = "AntiZone"
+})
+Character:WaitForChild("inZone").Changed:Connect(function()
+	if Character.inZone.Value and OrionLib.Flags["AntiZone"].Value then
+		Character.inZone.Value = false
+	end
+end)
 
 -- Init
 OrionLib:Init()
