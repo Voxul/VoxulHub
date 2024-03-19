@@ -515,12 +515,13 @@ PlrMovement:AddBind({
 	Save = true,
 	Flag = "SprintBind"
 })
+
 local PlayerOtherSection = Tab_Player:AddSection({
 	Name = "Other"
 })
 PlayerOtherSection:AddToggle({
 	Name = "Auto-Jump Enabled",
-	Default = false,
+	Default = LocalPlr.AutoJumpEnabled,
 	Callback = function(v)
 		LocalPlr.AutoJumpEnabled = v
 		Humanoid.AutoJumpEnabled = v
