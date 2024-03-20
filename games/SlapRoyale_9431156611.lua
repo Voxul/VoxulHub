@@ -982,7 +982,11 @@ RunService.Heartbeat:Connect(function(dT)
 				CFrame.new(lerpVector3WithSpeed(HumanoidRootPart.Position, targetPos, OrionLib.Flags["AutoWinTweenSpeed"].Value, dT))*CFrame.Angles(math.rad(180), 0, 0),
 				true
 			)
-			HumanoidRootPart.AssemblyLinearVelocity = (targetPos-HumanoidRootPart.Position).Unit * OrionLib.Flags["AutoWinTweenSpeed"].Value
+			local velocityDirection = (targetPos-HumanoidRootPart.Position).Unit
+			if velocityDirection == velocityDirection then
+				HumanoidRootPart.AssemblyLinearVelocity = (targetPos-HumanoidRootPart.Position).Unit * OrionLib.Flags["AutoWinTweenSpeed"].Value
+			end
+			
 			if OrionLib.Flags["AutoWinOptimizations"].Value and (HumanoidRootPart.Position-targetPos).Magnitude < 0.5 then
 				if not targetChar:FindFirstChild("Glider") then
 					lOSParams.FilterDescendantsInstances = {Character}
