@@ -204,7 +204,7 @@ Tab_Home:AddButton({
 			Name = "Voxul Hub",
 			Content = "Loading Infinite Yield...",
 			Image = "http://www.roblox.com/asset/?id=6034973074",
-			Time = 5
+			Time = 3
 		})
 		loadstring(game:HttpGet('https://raw.githubusercontent.com/EdgeIY/infiniteyield/master/source'))()
 	end
@@ -928,7 +928,7 @@ end
 local lastPositions = {}
 local warnNotifDebounce = false
 RunService.Heartbeat:Connect(function(dT)
-	if Character:FindFirstChild("Dead") or OrionLib.Flags["AutoWinMode"].Value == "Disabled" then return end
+	if not Character or Character:FindFirstChild("Dead") or OrionLib.Flags["AutoWinMode"].Value == "Disabled" then return end
 	
 	if not Character:FindFirstChild(gloveName.Value) then
 		if not LocalPlr.Backpack:FindFirstChild(gloveName.Value) then
@@ -962,6 +962,13 @@ RunService.Heartbeat:Connect(function(dT)
 			warnNotifDebounce = false
 		end
 		return
+	end
+	
+	if Character:FindFirstChild("Torso") then
+		Character.Torso.CanCollide = false
+	end
+	if Character:FindFirstChild("Head") then
+		Character.Head.CanCollide = false
 	end
 	
 	local target, distance = getClosestHittablePlayer()
