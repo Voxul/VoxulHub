@@ -1005,7 +1005,7 @@ RunService.Heartbeat:Connect(function(dT)
 			CFrame.new(lerpVector3WithSpeed(HumanoidRootPart.Position, HumanoidRootPart.Position*Vector3XZ, OrionLib.Flags["AutoWinTweenSpeed"].Value, dT))*CFrame.Angles(math.rad(180), 0, 0),
 			true
 		)
-		HumanoidRootPart.AssemblyLinearVelocity = (-HumanoidRootPart.Position*Vector3.yAxis).Unit * OrionLib.Flags["AutoWinTweenSpeed"].Value
+		HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,OrionLib.Flags["AutoWinTweenSpeed"].Value*-math.sign(HumanoidRootPart.Position.Y),0)
 	end
 	
 	for _,plr in Players:GetPlayers() do
