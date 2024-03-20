@@ -985,6 +985,9 @@ RunService.Heartbeat:Connect(function(dT)
 			local velocityDirection = (targetPos-HumanoidRootPart.Position).Unit
 			if velocityDirection == velocityDirection then
 				HumanoidRootPart.AssemblyLinearVelocity = (targetPos-HumanoidRootPart.Position).Unit * OrionLib.Flags["AutoWinTweenSpeed"].Value
+				RunService.PreSimulation:Once(function()
+					HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
+				end)
 			end
 			
 			if OrionLib.Flags["AutoWinOptimizations"].Value and (HumanoidRootPart.Position-targetPos).Magnitude < 0.5 then
@@ -1009,7 +1012,10 @@ RunService.Heartbeat:Connect(function(dT)
 			CFrame.new(lerpVector3WithSpeed(HumanoidRootPart.Position, HumanoidRootPart.Position*Vector3XZ, OrionLib.Flags["AutoWinTweenSpeed"].Value, dT))*CFrame.Angles(math.rad(180), 0, 0),
 			true
 		)
-		HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,OrionLib.Flags["AutoWinTweenSpeed"].Value*-math.sign(HumanoidRootPart.Position.Y),0)
+		HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,OrionLib.Flags["AutoWinTweenSpeed"].Value*-math.sign(HumanoidRootPart.Position.Y),0) -- improve physics interp
+		RunService.PreSimulation:Once(function()
+			HumanoidRootPart.AssemblyLinearVelocity = Vector3.zero
+		end)
 	end
 	
 	for _,plr in Players:GetPlayers() do
