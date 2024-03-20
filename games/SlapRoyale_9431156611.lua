@@ -982,13 +982,13 @@ RunService.Heartbeat:Connect(function(dT)
 				CFrame.new(lerpVector3WithSpeed(HumanoidRootPart.Position, targetPos, OrionLib.Flags["AutoWinTweenSpeed"].Value, dT))*CFrame.Angles(math.rad(180), 0, 0),
 				true
 			)
-			
+			HumanoidRootPart.AssemblyLinearVelocity = (targetPos-HumanoidRootPart.Position).Unit * OrionLib.Flags["AutoWinTweenSpeed"].Value
 			if OrionLib.Flags["AutoWinOptimizations"].Value and (HumanoidRootPart.Position-targetPos).Magnitude < 0.5 then
 				if not targetChar:FindFirstChild("Glider") then
 					lOSParams.FilterDescendantsInstances = {Character}
-					local losTo = workspace:Raycast(HumanoidRootPart.Position, (tHRM.Position-HumanoidRootPart.Position), lOSParams)
+					local losTo = workspace:Raycast(HumanoidRootPart.Position, (targetPos-HumanoidRootPart.Position), lOSParams)
 					lOSParams.FilterDescendantsInstances = {target, workspace.Terrain}
-					local losFrom = workspace:Raycast(tHRM.Position, (HumanoidRootPart.Position-tHRM.Position), lOSParams)
+					local losFrom = workspace:Raycast(targetPos, (HumanoidRootPart.Position-targetPos), lOSParams)
 					if not losTo or not losTo.Instance:IsDescendantOf(target) or not losFrom or not losFrom.Instance:IsDescendantOf(Character) then
 						task.wait(0.08)
 					end
@@ -1005,6 +1005,7 @@ RunService.Heartbeat:Connect(function(dT)
 			CFrame.new(lerpVector3WithSpeed(HumanoidRootPart.Position, HumanoidRootPart.Position*Vector3XZ, OrionLib.Flags["AutoWinTweenSpeed"].Value, dT))*CFrame.Angles(math.rad(180), 0, 0),
 			true
 		)
+		HumanoidRootPart.AssemblyLinearVelocity = (-HumanoidRootPart.Position*Vector3.yAxis).Unit * OrionLib.Flags["AutoWinTweenSpeed"].Value
 	end
 	
 	for _,plr in Players:GetPlayers() do
