@@ -705,19 +705,21 @@ AntiBarriers:AddToggle({
 })
 
 Tab_Misc:AddToggle({
-	Name = "Remove Zone Effects",
+	Name = "Disable Zone Effects",
 	Default = false,
 	Save = true,
 	Flag = "AntiZone"
 })
+
+-- Init
+OrionLib:Init()
+
 Character:WaitForChild("inZone").Changed:Connect(function()
 	if Character.inZone.Value and OrionLib.Flags["AntiZone"].Value then
 		Character.inZone.Value = false
 	end
 end)
 
--- Init
-OrionLib:Init()
 
 if not MatchInfo.Started.Value then
 	MatchInfo.Started.Changed:Wait()
