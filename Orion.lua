@@ -667,7 +667,6 @@ function OrionLib:MakeWindow(WindowConfig)
 			Position = UDim2.new(0.5, 0, 0.5, 0),
 			Size = UDim2.new(0.7, 0, 0.7, 0)
 		}), "Text"),
-		AddThemeObject(MakeElement("Stroke"), "Stroke"),
 		MakeElement("Corner", 1)
 	})
 
