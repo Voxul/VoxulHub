@@ -656,8 +656,8 @@ function OrionLib:MakeWindow(WindowConfig)
 	
 	local MobileReopenButton = SetChildren(SetProps(MakeElement("Button"), {
 		Parent = Orion,
-		Size = UDim2.new(0, 32, 0, 32),
-		Position = UDim2.new(0, 8, 0, 8),
+		Size = UDim2.new(0, 40, 0, 40),
+		Position = UDim2.new(0.5, -20, 0, 20),
 		BackgroundTransparency = 0,
 		BackgroundColor3 = OrionLib.Themes[OrionLib.SelectedTheme].Main,
 		Visible = false
@@ -665,7 +665,7 @@ function OrionLib:MakeWindow(WindowConfig)
 		AddThemeObject(SetProps(MakeElement("Image", WindowConfig.Icon or "http://www.roblox.com/asset/?id=6035039429"), {
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.new(0.5, 0, 0.5, 0),
-			Size = UDim2.new(0.8, 0, 0.8, 0)
+			Size = UDim2.new(0.7, 0, 0.7, 0)
 		}), "Text"),
 		AddThemeObject(MakeElement("Stroke"), "Stroke"),
 		MakeElement("Corner", 1)
