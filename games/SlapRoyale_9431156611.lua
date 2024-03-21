@@ -150,10 +150,19 @@ end
 -- Remote Blocker
 local blockedRemotes = {[Events.WS] = "FireServer", [Events.WS2] = "FireServer"}
 
-local bypass; bypass = hookmetamethod(game, "__namecall", function(remote, ...)
-	if blockedRemotes[remote] == true or blockedRemotes[remote] == getnamecallmethod() then return end
-	return bypass(remote, ...)
-end)
+if hookmetamethod and getnamecallmethod then
+	local bypass; bypass = hookmetamethod(game, "__namecall", function(remote, ...)
+		if blockedRemotes[remote] == true or blockedRemotes[remote] == getnamecallmethod() then return end
+		return bypass(remote, ...)
+	end)
+else
+	warn("unsupported executor, falling back to :Destroy()!")
+	for i in blockedRemotes do
+		if i.Parent then
+			i:Destroy()
+		end
+	end
+end
 
 workspace.Map.OriginOffice:WaitForChild("Antiaccess").CanTouch = false
 
