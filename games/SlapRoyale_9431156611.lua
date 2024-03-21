@@ -429,7 +429,7 @@ AutoWinSection:AddSlider({
 	Save = true,
 	Flag = "AutoWinTweenSpeed"
 })
-AutoWinSection:AddLabel("Going too fast will kick you!")
+AutoWinSection:AddParagraph("Going too fast will kick you!", "Decrease the speed using the slider above if you get kicked")
 AutoWinSection:AddToggle({
 	Name = "Ignore Friends",
 	Default = false,
