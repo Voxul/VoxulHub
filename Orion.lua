@@ -58,7 +58,7 @@ if syn then
 	syn.protect_gui(Orion)
 	Orion.Parent = game.CoreGui
 else
-	Orion.Parent = gethui() or game.CoreGui
+	Orion.Parent = gethui and gethui() or game.CoreGui
 end
 
 if gethui then
@@ -468,7 +468,7 @@ function OrionLib:Init()
 					Time = 5
 				})
 			end
-		end)		
+		end)
 	end	
 end	
 
@@ -476,7 +476,6 @@ function OrionLib:MakeWindow(WindowConfig)
 	local FirstTab = true
 	local Minimized = false
 	local Loaded = false
-	local UIHidden = false
 
 	WindowConfig = WindowConfig or {}
 	WindowConfig.Name = WindowConfig.Name or "Orion Library"
@@ -654,22 +653,39 @@ function OrionLib:MakeWindow(WindowConfig)
 	end	
 
 	MakeDraggable(DragPoint, MainWindow)
+	
+	local MobileReopenButton = SetChildren(SetProps(MakeElement("Button"), {
+		Parent = Orion,
+		Size = UDim2.new(0, 30, 0, 30),
+		Position = UDim2.new(0.5, -15, 0, 0),
+		BackgroundTransparency = 1
+	}), {
+		AddThemeObject(SetProps(MakeElement("Image", WindowConfig.Icon or "http://www.roblox.com/asset/?id=6035039429"), {
+			Position = UDim2.new(0, 0, 0, 0),
+			Size = UDim2.new(1, 0, 1, 0)
+		}), "Text"),
+		AddThemeObject(MakeElement("Stroke"), "Stroke")
+	})
 
 	AddConnection(CloseBtn.MouseButton1Up, function()
 		MainWindow.Visible = false
-		UIHidden = true
 		OrionLib:MakeNotification({
 			Name = "Interface Hidden",
-			Content = "Tap LeftAlt to reopen the interface",
+			Content = "Tap LeftAlt or press the button to reopen the interface",
 			Time = 5
 		})
+		
 		WindowConfig.CloseCallback()
 	end)
-
+	
 	AddConnection(UserInputService.InputBegan, function(Input)
-		if Input.KeyCode == Enum.KeyCode.LeftAlt and UIHidden then
+		if Input.KeyCode == Enum.KeyCode.LeftAlt then
 			MainWindow.Visible = true
 		end
+	end)
+	
+	AddConnection(MobileReopenButton.Activated, function()
+		MainWindow.Visible = true
 	end)
 
 	AddConnection(MinimizeBtn.MouseButton1Up, function()
