@@ -98,11 +98,11 @@ local function canHitPlayer(player:Player, checkVulnerability:boolean?, checkPos
 	if not char.inMatch.Value or char:FindFirstChild("Dead") or char.Humanoid.Health <= 0 then return false end
 	
 	if checkVulnerability then
-		if char.Ragdolled.Value or not char.Vulnerable.Value or char.Head.Transparency == 1 and not char:FindFirstChildWhichIsA("Tool") and not player.Backpack:FindFirstChildWhichIsA("Tool") then return false end
+		if char.Ragdolled.Value or not char.Vulnerable.Value or char.Head.Transparency == 1 and not char:FindFirstChildWhichIsA("Tool") and not player.Backpack:FindFirstChildWhichIsA("Tool") and workspace:FindFirstChild("BusModel") then return false end
 	end
 	if checkPosition then
 		local CHRMPOS = char.HumanoidRootPart.Position
-		if math.abs(CHRMPOS.X) > 2000 or math.abs(CHRMPOS.Z) > 2000 or CHRMPOS.Y < -180 or CHRMPOS.Y > 800 then
+		if math.abs(CHRMPOS.X) > 2000 or math.abs(CHRMPOS.Z) > 2000 or CHRMPOS.Y < -185 or CHRMPOS.Y > 1000 then
 			return false
 		end
 	end
@@ -682,7 +682,7 @@ AntiBarriers:AddToggle({
 	Flag = "AntiAcid"
 })
 AntiBarriers:AddToggle({
-	Name = "Acid Collision",
+	Name = "Solid Acid",
 	Default = false,
 	Callback = function(v)
 		for _,v1 in workspace.Map.AcidAbnormality:GetChildren() do
@@ -704,13 +704,26 @@ AntiBarriers:AddToggle({
 	Flag = "AntiLava"
 })
 AntiBarriers:AddToggle({
-	Name = "Lava Collision",
+	Name = "Solid Lava",
 	Default = false,
 	Callback = function(v)
 		workspace.Map.DragonDepths:WaitForChild("Lava").CanCollide = v
 	end,
 	Save = true,
 	Flag = "SolidLava"
+})
+AntiBarriers:AddToggle({
+	Name = "Remove under-map walls",
+	Default = false,
+	Callback = function(v)
+		for _,v in workspace.Map.AntiUnderMap:GetChildren() do
+			if v:IsA("BasePart") then
+				v.CanCollide = not v
+			end
+		end
+	end,
+	Save = true,
+	Flag = "AntiUnderWalls"
 })
 
 Tab_Misc:AddToggle({
