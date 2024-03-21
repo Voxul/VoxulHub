@@ -314,7 +314,7 @@ local function heal()
 	
 	print("Healing...")
 	OrionLib:MakeNotification({
-		Name = "Auto Heal",
+		Name = "Auto-Heal",
 		Content = "Healing to safe health...",
 		Image = "http://www.roblox.com/asset/?id=6034684956",
 		Time = 3
@@ -422,14 +422,14 @@ AutoWinSection:AddDropdown({
 AutoWinSection:AddSlider({
 	Name = "Tween Speed",
 	Min = 0,
-	Max = 500,
+	Max = 450,
 	Default = 400,
 	Increment = 1,
 	ValueName = "studs/sec",
 	Save = true,
 	Flag = "AutoWinTweenSpeed"
 })
-AutoWinSection:AddLabel("Going too fast will kick you")
+AutoWinSection:AddLabel("Going too fast will kick you!")
 AutoWinSection:AddToggle({
 	Name = "Ignore Friends",
 	Default = false,
