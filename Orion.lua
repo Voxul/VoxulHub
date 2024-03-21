@@ -657,7 +657,9 @@ function OrionLib:MakeWindow(WindowConfig)
 	local MobileReopenButton = SetChildren(SetProps(MakeElement("Button"), {
 		Parent = Orion,
 		Size = UDim2.new(0, 30, 0, 30),
-		Position = UDim2.new(0.5, -15, 0, 0)
+		Position = UDim2.new(0.5, -15, 0, 0),
+		BackgroundTransparency = 0,
+		Visible = false
 	}), {
 		AddThemeObject(SetProps(MakeElement("Image", WindowConfig.Icon or "http://www.roblox.com/asset/?id=6035039429"), {
 			Position = UDim2.new(0, 0, 0, 0),
@@ -669,6 +671,7 @@ function OrionLib:MakeWindow(WindowConfig)
 
 	AddConnection(CloseBtn.MouseButton1Up, function()
 		MainWindow.Visible = false
+		MobileReopenButton.Visible = true
 		OrionLib:MakeNotification({
 			Name = "Interface Hidden",
 			Content = "Tap LeftAlt or press the button to reopen the interface",
@@ -681,11 +684,13 @@ function OrionLib:MakeWindow(WindowConfig)
 	AddConnection(UserInputService.InputBegan, function(Input)
 		if Input.KeyCode == Enum.KeyCode.LeftAlt then
 			MainWindow.Visible = true
+			MobileReopenButton.Visible = false
 		end
 	end)
 	
 	AddConnection(MobileReopenButton.Activated, function()
 		MainWindow.Visible = true
+		MobileReopenButton.Visible = false
 	end)
 
 	AddConnection(MinimizeBtn.MouseButton1Up, function()
