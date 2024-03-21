@@ -458,17 +458,25 @@ function OrionLib:MakeNotification(NotificationConfig)
 end    
 
 function OrionLib:Init()
-	if OrionLib.SaveCfg then	
-		pcall(function()
-			if isfile(OrionLib.Folder .. "/" .. game.PlaceId .. ".txt") then
-				LoadCfg(readfile(OrionLib.Folder .. "/" .. game.PlaceId .. ".txt"))
-				OrionLib:MakeNotification({
-					Name = "Configuration",
-					Content = "Auto-loaded configuration for the game " .. game.PlaceId .. ".",
-					Time = 5
-				})
-			end
-		end)
+	if OrionLib.SaveCfg then
+		if isfile and readfile then
+			pcall(function()
+				if isfile(OrionLib.Folder .. "/" .. game.PlaceId .. ".txt") then
+					LoadCfg(readfile(OrionLib.Folder .. "/" .. game.PlaceId .. ".txt"))
+					OrionLib:MakeNotification({
+						Name = "Configuration",
+						Content = "Auto-loaded configuration for the game " .. game.PlaceId .. ".",
+						Time = 5
+					})
+				end
+			end)
+		else
+			OrionLib:MakeNotification({
+				Name = "Configuration",
+				Content = "Saving not available",
+				Time = 5
+			})
+		end
 	end	
 end	
 
