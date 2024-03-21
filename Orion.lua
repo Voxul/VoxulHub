@@ -657,8 +657,7 @@ function OrionLib:MakeWindow(WindowConfig)
 	local MobileReopenButton = SetChildren(SetProps(MakeElement("Button"), {
 		Parent = Orion,
 		Size = UDim2.new(0, 30, 0, 30),
-		Position = UDim2.new(0.5, -15, 0, 0),
-		BackgroundTransparency = 1
+		Position = UDim2.new(0.5, -15, 0, 0)
 	}), {
 		AddThemeObject(SetProps(MakeElement("Image", WindowConfig.Icon or "http://www.roblox.com/asset/?id=6035039429"), {
 			Position = UDim2.new(0, 0, 0, 0),
