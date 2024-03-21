@@ -663,8 +663,8 @@ function OrionLib:MakeWindow(WindowConfig)
 		Visible = false
 	}), {
 		AddThemeObject(SetProps(MakeElement("Image", WindowConfig.Icon or "http://www.roblox.com/asset/?id=6035039429"), {
-			Position = UDim2.new(0, 0, 0, 0),
-			Size = UDim2.new(1, 0, 1, 0)
+			Position = UDim2.new(0, 3, 0, 3),
+			Size = UDim2.new(0, 26, 0, 26)
 		}), "Text"),
 		AddThemeObject(MakeElement("Stroke"), "Stroke"),
 		MakeElement("Corner", 1)
