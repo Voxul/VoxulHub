@@ -1010,7 +1010,7 @@ RunService.Heartbeat:Connect(function(dT)
 			end
 			
 			pivotModelTo(Character,
-				CFrame.new(lerpVector3WithSpeed(HumanoidRootPart.Position, targetPos, OrionLib.Flags["AutoWinTweenSpeed"].Value, dT))*CFrame.Angles(math.rad(180), 0, 0),
+				CFrame.new(lerpVector3WithSpeed(HumanoidRootPart.Position, targetPos, OrionLib.Flags["AutoWinTweenSpeed"].Value, math.min(dT, 0.017)))*CFrame.Angles(math.rad(180), 0, 0),
 				true
 			)
 			local velocityDirection = (targetPos-HumanoidRootPart.Position).Unit
@@ -1040,7 +1040,7 @@ RunService.Heartbeat:Connect(function(dT)
 		slapPlayer(targetChar)
 	else
 		pivotModelTo(Character,
-			CFrame.new(lerpVector3WithSpeed(HumanoidRootPart.Position, HumanoidRootPart.Position*Vector3XZ, OrionLib.Flags["AutoWinTweenSpeed"].Value, dT))*CFrame.Angles(math.rad(180), 0, 0),
+			CFrame.new(lerpVector3WithSpeed(HumanoidRootPart.Position, HumanoidRootPart.Position*Vector3XZ, OrionLib.Flags["AutoWinTweenSpeed"].Value, math.min(dT, 0.017)))*CFrame.Angles(math.rad(180), 0, 0),
 			true
 		)
 		HumanoidRootPart.AssemblyLinearVelocity = Vector3.new(0,OrionLib.Flags["AutoWinTweenSpeed"].Value*-math.sign(HumanoidRootPart.Position.Y),0) -- improve physics interp
