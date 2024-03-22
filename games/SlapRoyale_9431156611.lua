@@ -339,29 +339,31 @@ SlapAuraSection:AddToggle({
 	Default = false,
 	Callback = function(v)
 		if not v then return end
-		while OrionLib.Flags["SlapAura"].Value and task.wait() do
-			if not Character:FindFirstChild(gloveName.Value) then continue end
-			for _,v in Players:GetPlayers() do
-				if OrionLib.Flags["SlapAuraFriendly"] and friends[v.UserId] or not canHitPlayer(v) then 
-					continue
-				elseif friends[v.UserId] == nil then
-					friends[v.UserId] = LocalPlr:IsFriendsWith(v.UserId)
-				end
-				
-				local distance = (v.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
-				if distance > OrionLib.Flags["SlapAuraRange"].Value then continue end
-				
-				slapPlayer(v.Character)
-				
-				if OrionLib.Flags["SlapAuraAnim"].Value then
-					Character[gloveName.Value]:Activate()
-				end
-				
-				if distance < 6 and canHitPlayer(v, true) and OrionLib.Flags["SlapAuraCooldown"].Value > 0 then
-					task.wait(OrionLib.Flags["SlapAuraCooldown"].Value)
+		task.spawn(function()
+			while OrionLib.Flags["SlapAura"].Value and task.wait() do
+				if not Character:FindFirstChild(gloveName.Value) then continue end
+				for _,v in Players:GetPlayers() do
+					if OrionLib.Flags["SlapAuraFriendly"] and friends[v.UserId] or not canHitPlayer(v) then 
+						continue
+					elseif friends[v.UserId] == nil then
+						friends[v.UserId] = LocalPlr:IsFriendsWith(v.UserId)
+					end
+
+					local distance = (v.Character.HumanoidRootPart.Position-HumanoidRootPart.Position).Magnitude
+					if distance > OrionLib.Flags["SlapAuraRange"].Value then continue end
+
+					slapPlayer(v.Character)
+
+					if OrionLib.Flags["SlapAuraAnim"].Value then
+						Character[gloveName.Value]:Activate()
+					end
+
+					if distance < 6 and canHitPlayer(v, true) and OrionLib.Flags["SlapAuraCooldown"].Value > 0 then
+						task.wait(OrionLib.Flags["SlapAuraCooldown"].Value)
+					end
 				end
 			end
-		end
+		end)
 	end,
 	Save = true,
 	Flag = "SlapAura"
@@ -733,15 +735,14 @@ Tab_Misc:AddToggle({
 	Flag = "AntiZone"
 })
 
--- Init
-OrionLib:Init()
-
 Character:WaitForChild("inZone").Changed:Connect(function()
 	if Character.inZone.Value and OrionLib.Flags["AntiZone"].Value then
 		Character.inZone.Value = false
 	end
 end)
 
+-- Init
+OrionLib:Init()
 
 if not MatchInfo.Started.Value then
 	MatchInfo.Started.Changed:Wait()
