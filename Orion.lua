@@ -813,7 +813,7 @@ function OrionLib:MakeWindow(WindowConfig)
 			Container.Visible = true
 		end    
 
-		AddConnection(TabFrame.MouseButton1Click, function()
+		AddConnection(TabFrame.Activated, function()
 			for _, Tab in next, TabHolder:GetChildren() do
 				if Tab:IsA("TextButton") then
 					Tab.Title.Font = Enum.Font.GothamSemibold
@@ -1092,19 +1092,19 @@ function OrionLib:MakeWindow(WindowConfig)
 					SliderBar
 				}), "Second")
 
-				SliderBar.InputBegan:Connect(function(Input)
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 then 
-						Dragging = true 
-					end 
-				end)
-				SliderBar.InputEnded:Connect(function(Input) 
-					if Input.UserInputType == Enum.UserInputType.MouseButton1 then 
-						Dragging = false 
+				SliderBar.InputBegan:Connect(function(Input:InputObject)
+					if Input.UserInputType == Enum.UserInputType.MouseButton1 or Input.UserInputType == Enum.UserInputType.Touch then 
+						Dragging = true
+						Input.Changed:Connect(function()
+							if Input.UserInputState == Enum.UserInputState.End then
+								Dragging = false 
+							end
+						end)
 					end 
 				end)
 
 				UserInputService.InputChanged:Connect(function(Input)
-					if Dragging and Input.UserInputType == Enum.UserInputType.MouseMovement then 
+					if Dragging and (Input.UserInputType == Enum.UserInputType.MouseMovement or Input == Enum.UserInputType.Touch) then 
 						local SizeScale = math.clamp((Input.Position.X - SliderBar.AbsolutePosition.X) / SliderBar.AbsoluteSize.X, 0, 1)
 						Slider:Set(SliderConfig.Min+((SliderConfig.Max-SliderConfig.Min) * SizeScale))
 						SaveCfg(game.PlaceId)
@@ -1218,7 +1218,7 @@ function OrionLib:MakeWindow(WindowConfig)
 							ClipsDescendants = true
 						}), "Divider")
 
-						AddConnection(OptionBtn.MouseButton1Click, function()
+						AddConnection(OptionBtn.Activated, function()
 							Dropdown:Set(Option)
 							SaveCfg(game.PlaceId)
 						end)
@@ -1262,7 +1262,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					return DropdownConfig.Callback(Dropdown.Value)
 				end
 
-				AddConnection(Click.MouseButton1Click, function()
+				AddConnection(Click.Activated, function()
 					Dropdown.Toggled = not Dropdown.Toggled
 					DropdownFrame.F.Line.Visible = Dropdown.Toggled
 					TweenService:Create(DropdownFrame.F.Ico,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Rotation = Dropdown.Toggled and 180 or 0}):Play()
@@ -1585,7 +1585,7 @@ function OrionLib:MakeWindow(WindowConfig)
 					AddThemeObject(MakeElement("Stroke"), "Stroke"),
 				}), "Second")
 
-				AddConnection(Click.MouseButton1Click, function()
+				AddConnection(Click.Activated, function()
 					Colorpicker.Toggled = not Colorpicker.Toggled
 					TweenService:Create(ColorpickerFrame,TweenInfo.new(.15, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),{Size = Colorpicker.Toggled and UDim2.new(1, 0, 0, 148) or UDim2.new(1, 0, 0, 38)}):Play()
 					Color.Visible = Colorpicker.Toggled
