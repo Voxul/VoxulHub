@@ -434,7 +434,7 @@ local AutoWinSection = Tab_Combat:AddSection({
 AutoWinSection:AddDropdown({
 	Name = "Auto-Win Mode",
 	Default = "Disabled",
-	Options = {"Disabled", --[["Tween", "Teleport", "Hybrid"]]},
+	Options = {"Disabled", "Tween"--[[, "Teleport", "Hybrid"]]},
 	Save = true,
 	Flag = "AutoWinMode"
 })
