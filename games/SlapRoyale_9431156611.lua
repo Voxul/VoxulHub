@@ -232,15 +232,32 @@ local ItemVacSection = Tab_Items:AddSection({
 ItemVacSection:AddDropdown({
 	Name = "Item Vacuum Mode",
 	Default = "Disabled",
-	Options = {"Disabled", "Pick Up"--[[, "Tween (WIP)", "Teleport (WIP)", "Hybrid (WIP)"]]},
+	Options = {"Disabled", "Pick Up", --[["Tween", "Teleport (W.I.P)", "Hybrid (W.I.P)"]]},
 	Save = true,
 	Flag = "ItemVacMode"
 })
+--[[ItemVacSection:AddSlider({
+	Name = "Tween Speed",
+	Min = 0,
+	Max = 450,
+	Default = 400,
+	Increment = 1,
+	ValueName = "studs/sec",
+	Save = true,
+	Flag = "ItemVacTweenSpeed"
+})
+ItemVacSection:AddParagraph("Going too fast will kick you!", "Decrease the speed using the slider above if you get kicked")
 ItemVacSection:AddToggle({
 	Name = "Vacuum Dropped Items",
 	Default = false,
 	Save = true,
 	Flag = "DroppedItemVac"
+})]]
+ItemVacSection:AddToggle({
+	Name = "Auto-Activate Item (disabling this can cause you to be teleported!)",
+	Default = true,
+	Save = true,
+	Flag = "ItemVacActivateTools"
 })
 
 local AutoItemSection = Tab_Items:AddSection({
@@ -417,7 +434,7 @@ local AutoWinSection = Tab_Combat:AddSection({
 AutoWinSection:AddDropdown({
 	Name = "Auto-Win Mode",
 	Default = "Disabled",
-	Options = {"Disabled", "Tween"--[[, "Teleport", "Hybrid"]]},
+	Options = {"Disabled", --[["Tween", "Teleport", "Hybrid"]]},
 	Save = true,
 	Flag = "AutoWinMode"
 })
@@ -718,6 +735,7 @@ AntiBarriers:AddToggle({
 	Name = "Remove under-map walls",
 	Default = false,
 	Callback = function(v)
+		print(v)
 		for _,v in workspace.Map.AntiUnderMap:GetChildren() do
 			if v:IsA("BasePart") then
 				v.CanCollide = not v
@@ -794,6 +812,7 @@ end
 workspace.CurrentCamera.CameraSubject = Humanoid
 
 -- items
+local pickedUpItems = 0
 local itemVacModes = {
 	["Disabled"] = function() end,
 	["Pick Up"] = function()
@@ -801,10 +820,12 @@ local itemVacModes = {
 			if not v:IsA("Tool") then return end
 			safeEquipTool(v, false, true)
 			v.Equipped:Once(function()
+				pickedUpItems += 1
 				v.AncestryChanged:Connect(function(_,p)
 					if p ~= Character then return end
 					task.defer(v.Activate, v)
 				end)
+				Humanoid:UnequipTools()
 			end)
 		end
 
@@ -823,14 +844,16 @@ local itemVacModes = {
 		
 		OrionLib:MakeNotification({
 			Name = "Item Vacuum",
-			Content = "Picked up "..#LocalPlr.Backpack:GetChildren().." items",
+			Content = "Picked up "..pickedUpItems.." items",
 			Image = "http://www.roblox.com/asset/?id=6034767621",
 			Time = 5
 		})
 	end,
-	["Tween"] = function() warn("Function not available yet!") end,
-	["Teleport"] = function() warn("Function not available yet!") end,
-	["Hybrid"] = function() warn("Function not available yet!") end,
+	["Tween"] = function()
+		
+	end,
+	["Teleport (W.I.P)"] = function() warn("Function not available yet!") end,
+	["Hybrid (W.I.P)"] = function() warn("Function not available yet!") end,
 }
 itemVacModes[OrionLib.Flags["ItemVacMode"].Value]()
 
@@ -954,6 +977,10 @@ local lastPositions = {}
 local warnNotifDebounce = false
 RunService.Heartbeat:Connect(function(dT)
 	if not Character or Character:FindFirstChild("Dead") or OrionLib.Flags["AutoWinMode"].Value == "Disabled" then return end
+	
+	if Humanoid:GetState() == Enum.HumanoidStateType.Seated then
+		Humanoid:ChangeState(Enum.HumanoidStateType.Running)
+	end
 	
 	if not Character:FindFirstChild(gloveName.Value) then
 		if not LocalPlr.Backpack:FindFirstChild(gloveName.Value) then
