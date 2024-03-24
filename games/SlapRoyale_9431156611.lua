@@ -822,6 +822,7 @@ local itemVacModes = {
 			v.Equipped:Once(function()
 				pickedUpItems += 1
 				v.AncestryChanged:Connect(function(_,p)
+					if not OrionLib.Flags["ItemVacActivateTools"].Value then return end
 					if p ~= Character then return end
 					task.defer(v.Activate, v)
 				end)
