@@ -762,6 +762,13 @@ end)
 -- Init
 OrionLib:Init()
 
+OrionLib:MakeNotification({
+	Name = "WARNING",
+	Content = "This game has a moderation system, you are using Voxul at your own risk of being banned. It is not recommended to exploit on your primary account.",
+	Image = "http://www.roblox.com/asset/?id=6034457092",
+	Time = 10
+})
+
 if not MatchInfo.Started.Value then
 	MatchInfo.Started.Changed:Wait()
 end
@@ -991,9 +998,9 @@ RunService.Heartbeat:Connect(function(dT)
 					Name = "Auto-Win",
 					Content = "Glove not found!",
 					Image = "http://www.roblox.com/asset/?id=6034457092",
-					Time = 1
+					Time = 3
 				})
-				task.wait(1)
+				task.wait(3)
 				warnNotifDebounce = false
 			end
 			
