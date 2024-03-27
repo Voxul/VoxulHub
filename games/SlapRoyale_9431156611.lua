@@ -442,7 +442,7 @@ AutoWinSection:AddSlider({
 	Name = "Tween Speed",
 	Min = 0,
 	Max = 450,
-	Default = 400,
+	Default = 350,
 	Increment = 1,
 	ValueName = "studs/sec",
 	Save = true,
