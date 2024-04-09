@@ -339,7 +339,7 @@ local function heal()
 	
 	useAllToolsOfNames(healingItems, function()
 		task.wait(getDataPing())
-		if Humanoid.Health >= OrionLib.Flags["HealSafeHP"].Value or Character:FindFirstChild("Dead") then return "break" end
+		if Humanoid.Health >= OrionLib.Flags["HealSafeHP"].Value or Humanoid.Health >= Humanoid.MaxHealth or Character:FindFirstChild("Dead") then return "break" end
 	end)
 	healdebounce = false
 end
@@ -434,7 +434,7 @@ local AutoWinSection = Tab_Combat:AddSection({
 AutoWinSection:AddDropdown({
 	Name = "Auto-Win Mode",
 	Default = "Disabled",
-	Options = {"Disabled", "Tween"--[[, "Teleport", "Hybrid"]]},
+	Options = {"Disabled", "Tween"--[[, "Teleport", "Hybrid"]]}, -- other modes will be implemented at later date
 	Save = true,
 	Flag = "AutoWinMode"
 })
@@ -632,8 +632,8 @@ AutoVotekicker:AddToggle({
 	Flag = "AutoVotekick"
 })
 AutoVotekicker:AddSlider({
-	Name = "Delay (+3 seconds to sync with match start completion)",
-	Min = 0,
+	Name = "Delay (Increase to reduce suspicion)",
+	Min = 3,
 	Max = 13,
 	Default = 3,
 	Increment = 0.05,
@@ -764,9 +764,9 @@ OrionLib:Init()
 
 OrionLib:MakeNotification({
 	Name = "WARNING",
-	Content = "This game has a moderation system, you are using Voxul at your own risk of being banned. It is not recommended to exploit on your primary account.",
-	Image = "http://www.roblox.com/asset/?id=6034457092",
-	Time = 10
+	Content = "This game has a moderation system, you are using Voxul at your own risk of being PERMANENTLY BANNED. It is not recommended to exploit on your primary account.",
+	Image = "http://www.roblox.com/asset/?id=6035067826",
+	Time = 15
 })
 
 if not MatchInfo.Started.Value then
@@ -857,11 +857,11 @@ local itemVacModes = {
 			Time = 5
 		})
 	end,
-	["Tween"] = function()
+	["Tween"] = function() -- implement if above is patched
 		
 	end,
-	["Teleport (W.I.P)"] = function() warn("Function not available yet!") end,
-	["Hybrid (W.I.P)"] = function() warn("Function not available yet!") end,
+	["Teleport (W.I.P)"] = function() warn("Function not available yet!") end, -- implement if above is patched
+	["Hybrid (W.I.P)"] = function() warn("Function not available yet!") end, -- implement if above is patched
 }
 itemVacModes[OrionLib.Flags["ItemVacMode"].Value]()
 
@@ -975,7 +975,7 @@ lOSParams.FilterDescendantsInstances = {}
 local function ignoreTarget(plr:Player)
 	if not table.find(ignored_targets, plr) then
 		table.insert(ignored_targets, plr)
-		task.delay(0.8, function()
+		task.delay(0.4 + getDataPing(), function()
 			table.remove(ignored_targets, table.find(ignored_targets, plr))
 		end)
 	end
@@ -1046,7 +1046,7 @@ RunService.Heartbeat:Connect(function(dT)
 			end
 			
 			pivotModelTo(Character,
-				CFrame.new(lerpVector3WithSpeed(HumanoidRootPart.Position, targetPos, OrionLib.Flags["AutoWinTweenSpeed"].Value, math.min(dT, 0.017)))*CFrame.Angles(math.rad(180), 0, 0),
+				CFrame.new(lerpVector3WithSpeed(HumanoidRootPart.Position, targetPos, OrionLib.Flags["AutoWinTweenSpeed"].Value, math.min(dT, 0.03)))*CFrame.Angles(math.rad(180), 0, 0),
 				true
 			)
 			local velocityDirection = (targetPos-HumanoidRootPart.Position).Unit
