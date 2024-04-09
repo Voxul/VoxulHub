@@ -33,8 +33,8 @@ local permanentItems = {"Boba", "Bull's essence", "Frog Brew", "Frog Potion", "P
 local healingItems = {"Apple", "Bandage", "Boba", "First Aid Kit", "Healing Brew", "Healing Potion"}
 
 local friends = {}
-local _,friendsOnline = pcall(LocalPlr.GetFriendsOnline, LocalPlr)
-for _,friend in friendsOnline or {} do
+local fO_s,friendsOnline = pcall(LocalPlr.GetFriendsOnline, LocalPlr)
+for _,friend in fO_s and friendsOnline or {} do
 	friends[friend.VisitorId] = true
 end
 for _,plr in Players:GetPlayers() do
@@ -53,9 +53,9 @@ local function getDataPing():number
 	return s and a/1000 or LocalPlr:GetNetworkPing() + 0.2
 end
 
-local lastDataRecvTime, lastRecvData = os.clock(), math.floor(StatsService.DataReceiveKbps*10000)
+local lastDataRecvTime, lastRecvData = os.clock(), StatsService.DataReceiveKbps
 RunService.Heartbeat:Connect(function()
-	local currentRecvData = math.floor(StatsService.DataReceiveKbps*10000)
+	local currentRecvData = StatsService.DataReceiveKbps
 	if currentRecvData ~= lastRecvData then
 		lastDataRecvTime = os.clock()
 	elseif os.clock()-lastDataRecvTime > 0.5 then
