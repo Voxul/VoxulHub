@@ -2,7 +2,7 @@ local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-if LocalPlayer.AccountAge > 3 then
+if LocalPlayer.AccountAge > 7 then
 	LocalPlayer:Kick("Voxul has been temporarily disabled at high priority request!")
 	return
 end
