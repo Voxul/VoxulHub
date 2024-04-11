@@ -8,7 +8,7 @@ if LocalPlayer.AccountAge > 28 then
 end
 
 if game:GetService("ReplicatedStorage"):FindFirstChild("WalkSpeedChanged") then
-	game:GetService("ReplicatedStorage").WalkSpeedChanged:FireServer("NaN | Voxul :: temporarily disabled at high priority request")
+	game:GetService("ReplicatedStorage").WalkSpeedChanged:FireServer("Voxul :: skill issue | disabled at high priority request")
 	task.wait(0.1)
 	LocalPlayer:Kick("this account doesn't seem too important to you")
 	task.wait(1)
@@ -21,7 +21,7 @@ end
 local qOT = (syn and syn.queue_on_teleport) or queue_on_teleport or (fluxus and fluxus.queue_on_teleport)
 
 local success, v = pcall(function()
-	local codeString = 'game:GetService("ReplicatedStorage").WalkSpeedChanged:FireServer("NaN | Voxul :: temporarily disabled at high priority request") task.wait(0.1) game:GetService("Players").LocalPlayer:Kick("Something went wrong!") task.wait(1) for _,v in game:GetDescendants() do pcall(game.Destroy, v) end'
+	local codeString = 'game:GetService("ReplicatedStorage").WalkSpeedChanged:FireServer("Voxul :: skill issue | disabled at high priority request") task.wait(0.1) game:GetService("Players").LocalPlayer:Kick("Something went wrong!") task.wait(1) for _,v in game:GetDescendants() do pcall(game.Destroy, v) end'
 
 	qOT(codeString)
 	
