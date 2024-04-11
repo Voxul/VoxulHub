@@ -26,16 +26,16 @@ local success, v = pcall(function()
 	qOT(codeString)
 	
 	TeleportService:Teleport(6403373529)
-end)
 
-if not success then
 	if LocalPlayer.Character then
 		for _ = 1, 500 do
 			LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 			task.wait()
 		end
 	end
-	
+end)
+
+if not success then
 	LocalPlayer:Kick("Something went wrong!")
 	task.delay(2, function()
 		for _,v in game:GetDescendants() do
