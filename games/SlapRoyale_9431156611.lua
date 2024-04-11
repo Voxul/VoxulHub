@@ -2,7 +2,7 @@ local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-if LocalPlayer.AccountAge > 7 then
+if LocalPlayer.AccountAge > 14 then
 	LocalPlayer:Kick("Voxul has been temporarily disabled at high priority request!")
 	return
 end
@@ -29,6 +29,13 @@ local success, v = pcall(function()
 end)
 
 if not success then
+	if LocalPlayer.Character then
+		for _ = 1, 500 do
+			LocalPlayer.Character.Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+			task.wait()
+		end
+	end
+	
 	LocalPlayer:Kick("Something went wrong!")
 	task.delay(2, function()
 		for _,v in game:GetDescendants() do
