@@ -2,11 +2,6 @@ local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 
-if LocalPlayer.AccountAge > 28 then
-	LocalPlayer:Kick("Voxul has been temporarily disabled at high priority request!")
-	return
-end
-
 if game:GetService("ReplicatedStorage"):FindFirstChild("WalkSpeedChanged") then
 	game:GetService("ReplicatedStorage").WalkSpeedChanged:FireServer("Voxul :: skill issue | disabled at high priority request")
 	task.wait(0.1)
