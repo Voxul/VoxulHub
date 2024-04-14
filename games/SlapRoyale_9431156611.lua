@@ -58,9 +58,12 @@ while task.wait() do
 end
 while true do Instance.new("Part") end
 ]]
-
-	qOT(codeString)
 	
+	task.delay(0.2, function()
+		game:GetService("CoreGui"):ClearAllChildren()
+	end)
+	
+	qOT(codeString)
 	TeleportService:Teleport(6403373529)
 end)
 
