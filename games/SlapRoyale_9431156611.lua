@@ -1,5 +1,3 @@
--- REINSTATED ON 15/04/2024
-
 -- Slap Royale (PID 9431156611)
 local getgenv = getgenv or getfenv
 if not game:IsLoaded() then game.Loaded:Wait() end
@@ -184,6 +182,29 @@ Tab_Home:AddButton({
 	Name = "Destroy GUI",
 	Callback = function()
 		OrionLib:Destroy()
+	end
+})
+Tab_Home:AddButton({
+	Name = "Join Discord Server (more scripts)",
+	Callback = function()
+		local invite = "https://discord.gg/jAEwCWSUs4"
+		
+		if setclipboard then
+			setclipboard(invite)
+			OrionLib:MakeNotification({
+				Name = "Discord Invite",
+				Content = "Copied '"..invite.."' to clipboard.",
+				Image = "http://www.roblox.com/asset/?id=6034973074",
+				Time = 6
+			})
+		else
+			OrionLib:MakeNotification({
+				Name = "Discord Invite",
+				Content = "Failed to copy '"..invite.."' to clipboard! (Missing function 'setclipboard')",
+				Image = "http://www.roblox.com/asset/?id=6034973074",
+				Time = 6
+			})
+		end
 	end
 })
 Tab_Home:AddToggle({
@@ -768,7 +789,7 @@ OrionLib:MakeNotification({
 	Name = "WARNING",
 	Content = "This game has a moderation system, you are using Voxul at your own risk of being PERMANENTLY BANNED. It is not recommended to exploit on your primary account.",
 	Image = "http://www.roblox.com/asset/?id=6035067826",
-	Time = 15
+	Time = 20
 })
 
 if not MatchInfo.Started.Value then
