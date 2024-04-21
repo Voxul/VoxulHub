@@ -129,7 +129,7 @@ end
 local function useAllToolsOfNames(names:{string}, intervalFunc:any?)
 	local itemsUsed = 0
 	for _,v in LocalPlr.Backpack:GetChildren() do
-		if v:IsA("Tool") and table.find(names, v.Name) then
+		if v.ClassName == "Tool" and table.find(names, v.Name) then
 			safeEquipTool(v, true)
 			itemsUsed += 1
 			if intervalFunc and intervalFunc(itemsUsed) == "break" then break end
@@ -255,7 +255,7 @@ local ItemVacSection = Tab_Items:AddSection({
 ItemVacSection:AddDropdown({
 	Name = "Item Vacuum Mode",
 	Default = "Disabled",
-	Options = {"Disabled", "Pick Up", --[["Tween", "Teleport (W.I.P)", "Hybrid (W.I.P)"]]},
+	Options = {"Disabled", "Pick Up", --[["Tween", "Teleport", "Hybrid"]]},
 	Save = true,
 	Flag = "ItemVacMode"
 })
@@ -329,7 +329,7 @@ AutoHeal:AddToggle({
 AutoHeal:AddSlider({
 	Name = "Activation Health",
 	Min = 0,
-	Max = 600,
+	Max = 500,
 	Default = 30,
 	Increment = 1,
 	ValueName = "HP",
@@ -339,20 +339,28 @@ AutoHeal:AddSlider({
 AutoHeal:AddSlider({
 	Name = "Safe Health",
 	Min = 0,
-	Max = 600,
+	Max = 500,
 	Default = 80,
 	Increment = 1,
 	ValueName = "HP",
 	Save = true,
 	Flag = "HealSafeHP"
 })
+
+local function hasHealingItem()
+	for _,v in LocalPlr.Backpack:GetChildren() do
+		if v.ClassName == "Tool" and table.find(healingItems, v.Name) then
+			return true
+		end
+	end
+	return false
+end
+
 local healdebounce = false
 local function heal()
-	if healdebounce then return end
-	if not OrionLib.Flags["AutoHeal"].Value then return end
+	if healdebounce or not OrionLib.Flags["AutoHeal"].Value or not hasHealingItem() then return end
 	healdebounce = true
 	
-	print("Healing...")
 	OrionLib:MakeNotification({
 		Name = "Auto-Heal",
 		Content = "Healing to safe health...",
@@ -366,9 +374,8 @@ local function heal()
 	end)
 	healdebounce = false
 end
-
 Humanoid.HealthChanged:Connect(function(health)
-	if health <= OrionLib.Flags["HealLowHP"].Value then heal() end
+	if health <= OrionLib.Flags["HealLowHP"].Value and health < Humanoid.MaxHealth then heal() end
 end)
 
 local SlapAuraSection = Tab_Combat:AddSection({
@@ -608,7 +615,16 @@ PlayerOtherSection:AddToggle({
 		Humanoid:SetStateEnabled(Enum.HumanoidStateType.Ragdoll, not v)
 	end,
 	Save = true,
-	Flag = "AutoJumpEnabled"
+	Flag = "PreventTripping"
+})
+PlayerOtherSection:AddToggle({
+	Name = "Prevent Sitting",
+	Default = false,
+	Callback = function(v)
+		Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, not v)
+	end,
+	Save = true,
+	Flag = "PreventSitting"
 })
 
 -- Misc
@@ -758,7 +774,6 @@ AntiBarriers:AddToggle({
 	Name = "Remove under-map walls",
 	Default = false,
 	Callback = function(v)
-		print(v)
 		for _,v1 in workspace.Map.AntiUnderMap:GetChildren() do
 			if v1:IsA("BasePart") then
 				v1.CanCollide = not v
@@ -832,7 +847,6 @@ end
 
 --[[if not MatchInfo.StartingCompleted.Value then
 	MatchInfo.StartingCompleted.Changed:Wait()
-	print("starting complete")
 end]]
 
 if workspace:FindFirstChild("Lobby") then 
@@ -847,7 +861,7 @@ local itemVacModes = {
 	["Disabled"] = function() end,
 	["Pick Up"] = function()
 		local function pickUpTool(v:Tool)
-			if not v:IsA("Tool") then return end
+			if v.ClassName ~= "Tool" then return end
 			safeEquipTool(v, false, true)
 			v.Equipped:Once(function()
 				pickedUpItems += 1
@@ -864,8 +878,8 @@ local itemVacModes = {
 			pickUpTool(v)
 		end
 		workspace.Items.ChildAdded:Connect(function(c)
-			if not OrionLib.Flags["DroppedItemVac"].Value then return end
 			task.wait()
+			if not OrionLib.Flags["DroppedItemVac"].Value then return end
 			pickUpTool(c)
 		end)
 		
@@ -880,11 +894,9 @@ local itemVacModes = {
 			Time = 5
 		})
 	end,
-	["Tween"] = function() -- implement if above is patched
-		
-	end,
-	["Teleport (W.I.P)"] = function() warn("Function not available yet!") end, -- implement if above is patched
-	["Hybrid (W.I.P)"] = function() warn("Function not available yet!") end, -- implement if above is patched
+	["Tween"] = function() end, -- implement if above is patched
+	["Teleport"] = function() end, -- implement if above is patched
+	["Hybrid"] = function() end, -- implement if above is patched
 }
 itemVacModes[OrionLib.Flags["ItemVacMode"].Value]()
 
@@ -897,9 +909,8 @@ end
 if OrionLib.Flags["AutoTruePower"].Value then
 	local firstTruePower = nil
 	for _,v in LocalPlr.Backpack:GetChildren() do
-		if v:IsA("Tool") and v.Name == "True Power" then
+		if v.ClassName == "Tool" and v.Name == "True Power" then
 			if firstTruePower then
-				print("Perma True Power")
 				safeEquipTool(firstTruePower, true)
 				task.wait(0.3 + getDataPing())
 				safeEquipTool(v, true)
