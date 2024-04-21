@@ -1054,6 +1054,10 @@ RunService.PostSimulation:Connect(function(dT)
 		Humanoid:EquipTool(LocalPlr.Backpack[gloveName.Value])
 	end
 	
+	if Humanoid:GetState() == Enum.HumanoidStateType.Seated then
+		Humanoid:ChangeState(Enum.HumanoidStateType.Running)
+	end
+	
 	if os.clock()-lastDataRecvTime > 0.5 then
 		if not warnNotifDebounce then
 			warnNotifDebounce = true
