@@ -277,7 +277,7 @@ ItemVacSection:AddToggle({
 	Flag = "DroppedItemVac"
 })]]
 ItemVacSection:AddToggle({
-	Name = "Auto-Activate Item (disabling this can cause you to be teleported!)",
+	Name = "Auto-Activate Item (disabling can kick you)",
 	Default = true,
 	Save = true,
 	Flag = "ItemVacActivateTools"
