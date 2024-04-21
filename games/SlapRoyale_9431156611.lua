@@ -137,6 +137,15 @@ local function useAllToolsOfNames(names:{string}, intervalFunc:any?)
 	end
 end
 
+local function hasToolOfNames(names:{string})
+	for _,v in LocalPlr.Backpack:GetChildren() do
+		if v.ClassName == "Tool" and table.find(names, v.Name) then
+			return true
+		end
+	end
+	return false
+end
+
 local function lerpVector3WithSpeed(a:Vector3, goal:Vector3, speed:number, moveTick:number, maxAlpha:number?)
 	return a:Lerp(goal, math.min(speed/(a-goal).Magnitude * moveTick, maxAlpha or 1))
 end
@@ -269,13 +278,13 @@ ItemVacSection:AddDropdown({
 	Save = true,
 	Flag = "ItemVacTweenSpeed"
 })
-ItemVacSection:AddParagraph("Going too fast will kick you!", "Decrease the speed using the slider above if you get kicked")
+ItemVacSection:AddParagraph("Going too fast will kick you!", "Decrease the speed using the slider above if you get kicked")]]
 ItemVacSection:AddToggle({
 	Name = "Vacuum Dropped Items",
 	Default = false,
 	Save = true,
 	Flag = "DroppedItemVac"
-})]]
+})
 ItemVacSection:AddToggle({
 	Name = "Auto-Activate Item (disabling can kick you)",
 	Default = true,
@@ -347,18 +356,9 @@ AutoHeal:AddSlider({
 	Flag = "HealSafeHP"
 })
 
-local function hasHealingItem()
-	for _,v in LocalPlr.Backpack:GetChildren() do
-		if v.ClassName == "Tool" and table.find(healingItems, v.Name) then
-			return true
-		end
-	end
-	return false
-end
-
 local healdebounce = false
 local function heal()
-	if healdebounce or not OrionLib.Flags["AutoHeal"].Value or not hasHealingItem() then return end
+	if healdebounce or not OrionLib.Flags["AutoHeal"].Value or not hasToolOfNames(healingItems) then return end
 	healdebounce = true
 	
 	OrionLib:MakeNotification({
@@ -880,7 +880,10 @@ local itemVacModes = {
 				v.AncestryChanged:Connect(function(_,p)
 					if not OrionLib.Flags["ItemVacActivateTools"].Value then return end
 					if p ~= Character then return end
-					task.defer(v.Activate, v)
+					task.defer(function()
+						v:Activate()
+						Humanoid:UnequipTools()
+					end)
 				end)
 				Humanoid:UnequipTools()
 			end)
