@@ -193,29 +193,6 @@ Tab_Home:AddButton({
 		OrionLib:Destroy()
 	end
 })
-Tab_Home:AddButton({
-	Name = "Join Discord Server (more scripts)",
-	Callback = function()
-		local invite = "https://discord.gg/jAEwCWSUs4"
-		
-		if setclipboard then
-			setclipboard(invite)
-			OrionLib:MakeNotification({
-				Name = "Discord Invite",
-				Content = "Copied '"..invite.."' to clipboard.",
-				Image = "http://www.roblox.com/asset/?id=6034973074",
-				Time = 6
-			})
-		else
-			OrionLib:MakeNotification({
-				Name = "Discord Invite",
-				Content = "Failed to copy '"..invite.."' to clipboard! (Missing function 'setclipboard')",
-				Image = "http://www.roblox.com/asset/?id=6034973074",
-				Time = 6
-			})
-		end
-	end
-})
 Tab_Home:AddToggle({
 	Name = "Save Configuration",
 	Default = true,
