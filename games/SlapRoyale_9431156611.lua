@@ -161,7 +161,7 @@ local blockedRemotes = {[Events.WS] = "FireServer", [Events.WS2] = "FireServer"}
 
 if hookmetamethod and getnamecallmethod and checkcaller and newcclosure then
 	local bypass = hookmetamethod(game, "__namecall", newcclosure(function(a, ...)
-		if blockedRemotes[a] ~= nil and not checkcaller() and ( blockedRemotes[a] == true or string.find(getnamecallmethod(), blockedRemotes[a]) ) then return end
+		if blockedRemotes[a] ~= nil and not checkcaller() and ( blockedRemotes[a] == true or getnamecallmethod():find(blockedRemotes[a]) ) then return end
 		return bypass(a, ...)
 	end))
 else
