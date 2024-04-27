@@ -1,5 +1,3 @@
--- Remove type definitions when obfuscating!
-
 -- Slap Royale (PID 9431156611)
 local getgenv = getgenv or getfenv
 if not game:IsLoaded() then game.Loaded:Wait() end
@@ -446,6 +444,8 @@ AutoWinSection:AddDropdown({
 		if v ~= "Disabled" then
 			Humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, true)
 			Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+		else
+			Humanoid:ChangeState(Enum.HumanoidStateType.Running)
 		end
 	end,
 	Save = true,
@@ -1032,8 +1032,9 @@ RunService.PostSimulation:Connect(function(dT)
 		Humanoid:EquipTool(LocalPlr.Backpack[gloveName.Value])
 	end
 	
-	if Humanoid:GetState() == Enum.HumanoidStateType.Seated then
-		Humanoid:ChangeState(Enum.HumanoidStateType.Running)
+	if Humanoid.SeatPart or Humanoid.Sit or Humanoid:GetState() == Enum.HumanoidStateType.Seated then
+		Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+		Humanoid.Sit = false
 	end
 	
 	if os.clock()-lastDataRecvTime > 0.5 then
