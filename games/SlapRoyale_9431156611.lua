@@ -440,23 +440,9 @@ AutoWinSection:AddDropdown({
 	Name = "Auto-Win Mode",
 	Default = "Disabled",
 	Options = {"Disabled", "Tween"--[[, "Teleport", "Hybrid"]]}, -- other modes will be implemented at later date
-	Callback = function(v)
-		if v ~= "Disabled" then
-			Humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, true)
-			Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-		else
-			Humanoid:ChangeState(Enum.HumanoidStateType.Running)
-		end
-	end,
 	Save = true,
 	Flag = "AutoWinMode"
 })
-Humanoid.StateChanged:Connect(function(_, n)
-	if OrionLib.Flags["AutoWinMode"] ~= "Disabled" and n ~= Enum.HumanoidStateType.Physics then
-		Humanoid:SetStateEnabled(Enum.HumanoidStateType.Physics, true)
-		Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
-	end
-end)
 AutoWinSection:AddSlider({
 	Name = "Tween Speed",
 	Min = 0,
@@ -1033,7 +1019,7 @@ RunService.PostSimulation:Connect(function(dT)
 	end
 	
 	if Humanoid.SeatPart or Humanoid.Sit or Humanoid:GetState() == Enum.HumanoidStateType.Seated then
-		Humanoid:ChangeState(Enum.HumanoidStateType.Physics)
+		Humanoid:ChangeState(Enum.HumanoidStateType.Running)
 		Humanoid.Sit = false
 	end
 	
