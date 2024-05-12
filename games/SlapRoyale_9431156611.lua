@@ -872,6 +872,7 @@ local itemVacModes = {
 			Image = "http://www.roblox.com/asset/?id=6034767621",
 			Time = 5
 		})
+		task.wait(0.1)
 	end,
 	["Tween"] = function() end, -- implement if above is patched
 	["Teleport"] = function() end, -- implement if above is patched
@@ -1019,7 +1020,7 @@ RunService.PostSimulation:Connect(function(dT)
 	end
 	
 	if Humanoid.SeatPart or Humanoid.Sit or Humanoid:GetState() == Enum.HumanoidStateType.Seated then
-		Humanoid:ChangeState(Enum.HumanoidStateType.Running)
+		Humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
 		Humanoid.Sit = false
 	end
 	
@@ -1060,7 +1061,7 @@ RunService.PostSimulation:Connect(function(dT)
 			end
 			
 			pivotModelTo(Character,
-				CFrame.new(lerpVector3WithSpeed(HumanoidRootPart.Position, targetPos, OrionLib.Flags["AutoWinTweenSpeed"].Value, math.min(dT, 0.03)))*CFrame.Angles(math.rad(180), 0, 0),
+				CFrame.new(lerpVector3WithSpeed(HumanoidRootPart.Position, targetPos, OrionLib.Flags["AutoWinTweenSpeed"].Value, math.min(dT, 0.04)))*CFrame.Angles(math.rad(180), 0, 0),
 				true
 			)
 			local velocityDirection = (targetPos-HumanoidRootPart.Position).Unit
