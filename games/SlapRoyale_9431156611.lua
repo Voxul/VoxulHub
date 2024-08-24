@@ -12,7 +12,7 @@ local UserInputService = game:GetService("UserInputService")
 local Events = ReplicatedStorage.Events
 local MatchInfo = ReplicatedStorage.MatchInfo
 
--- other thingies
+-- other thing
 local LocalPlr = Players.LocalPlayer
 local Character = LocalPlr.Character or LocalPlr.CharacterAdded:Wait()
 local HumanoidRootPart:BasePart = Character:WaitForChild("HumanoidRootPart")
@@ -45,7 +45,7 @@ Players.PlayerAdded:Connect(function(plr)
 	friends[plr.UserId] = LocalPlr:IsFriendsWith(plr.UserId)
 end)
 
--- functions
+-- function
 local dataPingItem = StatsService.Network:WaitForChild("ServerStatsItem"):WaitForChild("Data Ping")
 local function getDataPing():number
 	local s,a = pcall(dataPingItem.GetValue, dataPingItem)
@@ -58,7 +58,7 @@ RunService.Heartbeat:Connect(function()
 	if currentRecvData ~= lastRecvData then
 		lastDataRecvTime = os.clock()
 	elseif os.clock()-lastDataRecvTime > 0.5 then
-		warn("No data received from server")
+		warn("Server not send data!")
 	end
 	lastRecvData = currentRecvData
 end)
@@ -156,6 +156,9 @@ end
 
 -- disable exploit countermeasures (anti-anticheat)
 local blockedRemotes = {[Events.WS] = "FireServer", [Events.WS2] = "FireServer"}
+if Events:FindFirstChild("AdminGUI") then
+	blockedRemotes[Events.AdminGUI] = "FireServer"
+end
 
 if hookmetamethod and getnamecallmethod and checkcaller and newcclosure then
 	local bypass;bypass = hookmetamethod(game, "__namecall", newcclosure(function(a, ...)
