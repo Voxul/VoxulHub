@@ -237,12 +237,12 @@ local Tab_Items = Window:MakeTab({
 
 Tab_Items:AddLabel("All features below will activate when the match starts")
 local ItemVacSection = Tab_Items:AddSection({
-	Name = "Item Vacuum (might be patch)"
+	Name = "Item Vacuum (tempory patched)"
 })
 ItemVacSection:AddDropdown({
 	Name = "Item Vacuum Mode",
 	Default = "Disabled",
-	Options = {"Disabled", "Pick Up", --[["Tween", "Teleport", "Hybrid"]]},
+	Options = {"Disabled", --[["Pick Up", "Tween", "Teleport", "Hybrid"]]},
 	Save = true,
 	Flag = "ItemVacMode"
 })
